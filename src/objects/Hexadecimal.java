@@ -1,4 +1,4 @@
-package intesys;
+package objects;
 
 public class Hexadecimal {
 	private SheepStack currSheepStack;
