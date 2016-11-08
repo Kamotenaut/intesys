@@ -80,7 +80,7 @@ public class TurnState extends State{
 			}
 				
 		}
-		
+		childrenLeft = child;
 		return result;
 	}
 	
