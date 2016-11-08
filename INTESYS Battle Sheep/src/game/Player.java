@@ -4,7 +4,6 @@ public class Player {
 
 	private String name;
 	private int turnNo;
-	private boolean isFinished
 	
 	
 	

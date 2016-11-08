@@ -140,8 +140,6 @@ public class TurnState extends State{
                 stop = true;
             }
         }
-        if(stop)
-            propagateScore();
         
     }
 
