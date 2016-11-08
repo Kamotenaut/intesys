@@ -1,7 +1,9 @@
-package game;
+package game.player;
 
-public class Player {
+import AI.state.State;
 
+public abstract class Player {
+	
 	private String name;
 	private int turnNo;
 	
@@ -24,4 +26,5 @@ public class Player {
 		this.turnNo = turnNo;
 	}
 	
+	public abstract void doTurn();
 }

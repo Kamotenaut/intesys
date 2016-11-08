@@ -1,7 +1,7 @@
 import AI.state.TurnState;
 import game.GameState;
 import game.HexSpace;
-import game.Player;
+import game.player.*;
 
 public class Driver {
 
@@ -42,14 +42,15 @@ public class Driver {
 		GameState.getInstance().setHexNeighbor(7, 5, HexSpace.NE);
 		GameState.getInstance().setHexNeighbor(5, 8, HexSpace.SE);
 		
-		GameState.getInstance().addPlayer(new Player("P1"));
-		GameState.getInstance().addPlayer(new Player("P2"));
+		// add players
+		GameState.getInstance().addPlayer(new HumanPlayer("P1"));
+		GameState.getInstance().addPlayer(new ComputerPlayer("P2"));
 		
-		// setup TurnState
-		TurnState init = new TurnState(GameState.getInstance().getCurrentPlayer());
+		// set up initial state and timer
+		GameState.getInstance().init(GameState.getInstance().getCurrentPlayer(), GameState.NO_WAIT);
 		
-		
-		HexSpace test = GameState.getInstance().getHexSpace(1);
+		// start game
+		GameState.getInstance().autoRunPlayer();
 	}
 
 }

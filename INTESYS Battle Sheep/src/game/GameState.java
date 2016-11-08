@@ -4,11 +4,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import AI.state.State;
+import AI.state.TurnState;
+import game.player.Player;
 import utils.SimpleTimer;
 
 public class GameState {
 
 	public static final int SEC_WAIT = 10;
+	public static final int NO_WAIT = -1;
 	
 	private static GameState instance = null;
 	
@@ -18,24 +21,53 @@ public class GameState {
 	private int hexSpaceCount;
 	
 	private SimpleTimer timer;
+	private TurnState currTurn;
 	
-	private State currTurn;
+	private boolean isGameOver;
 	
 	private GameState(){
 		map = new HashMap<>();
 		players = new ArrayList<>();
 		setCurrentPlayerIndex(0);
 		setHexSpaceCount(0);
-		timer = new SimpleTimer((long) (SEC_WAIT * SimpleTimer.TO_SECONDS));
+		setGameOver(false);
+	}
+	
+	public void init(Player player, int timerSec){
+		if(timerSec != NO_WAIT)
+		timer = new SimpleTimer((long) (timerSec * SimpleTimer.TO_SECONDS));
+		currTurn = new TurnState(player);
+	}
+	
+	public void init(Player player, int timerSec, ArrayList<SheepStack> sheepStacks){
+		if(timerSec != NO_WAIT)
+		timer = new SimpleTimer((long) (timerSec * SimpleTimer.TO_SECONDS));
+		currTurn = new TurnState(player, sheepStacks);
 	}
 
-	public boolean isTurnFinish(){return timer.checkTime();}
+	public boolean isTurnFinish(){
+		if(timer != null)
+			return timer.checkTime();
+		return false;
+		}
 	
-	public void resetTimer(){timer.restart();}
+	public void resetTimer(){ if(timer != null) timer.restart();}
 	
 	public void addPlayer(Player player){
 		players.add(player);
 		player.setTurnNumber(players.size() - 1);
+	}
+	
+	// for testing
+	public void autoRunPlayer(){
+		while(!isGameOver){
+		getCurrentPlayer().doTurn();
+		nextTurn();
+		}
+	}
+	
+	public void nextTurn(){
+		currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
 	}
 	
 	public int getPlayerCount(){ return players.size(); }
@@ -51,6 +83,13 @@ public class GameState {
 	public Player getNextPlayer(Player player){ return players.get( (player.getTurnNumber() + 1) % players.size()); }
 	
 	public Player getPlayer(int index){return players.get(index % players.size()); }
+	
+	public Player getPlayer(String name){
+		for(Player p: players)
+			if(p.getName().equalsIgnoreCase(name))
+				return p;
+		return null;
+		}
 	
 	public static synchronized GameState getInstance(){
 		if(instance == null)
@@ -105,12 +144,20 @@ public class GameState {
 		this.timer = timer;
 	}
 
-	public State getCurrentTurn() {
+	public TurnState getCurrentTurn() {
 		return currTurn;
 	}
 
-	public void setCurrentTurn(State currTurn) {
+	public void setCurrentTurn(TurnState currTurn) {
 		this.currTurn = currTurn;
+	}
+
+	public boolean isGameOver() {
+		return isGameOver;
+	}
+
+	public void setGameOver(boolean isGameOver) {
+		this.isGameOver = isGameOver;
 	}
 	
 }

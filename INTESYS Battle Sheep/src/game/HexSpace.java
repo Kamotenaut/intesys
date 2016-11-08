@@ -27,6 +27,21 @@ public class HexSpace {
 		this.id = id;
 	}
 	
+	public boolean hasEmptyNeighbors(int number){
+		int count = 0;
+		for(HexSpace h: neighbors)
+			if(h == null)
+				count++;
+		return count >= number;
+	}
+	
+	public boolean hasEmptyNeighbor(){
+		for(HexSpace h: neighbors)
+			if(h == null)
+				return true;
+		return false;
+	}
+	
 	public HexSpace[] getNeighbors(){ return neighbors; }
 	
 	public void setNeighbor(int direction, HexSpace neighbor){

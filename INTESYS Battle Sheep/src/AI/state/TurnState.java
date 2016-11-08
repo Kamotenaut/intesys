@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import game.GameState;
 import game.HexSpace;
-import game.Player;
+import game.player.Player;
 import game.SheepStack;
 
 public class TurnState extends State{
@@ -19,8 +19,7 @@ public class TurnState extends State{
     private boolean stop = false;
     private int gameScore = 0;
     private int type;
-
-	
+    
 	public TurnState(Player player){
 		sheepStacks = new ArrayList<>();
 		this.player = player;
@@ -37,7 +36,7 @@ public class TurnState extends State{
 		type = GameState.getInstance().isCurrentPlayer(player) ? MAX : MIN;
 	}
 	
-	public TurnState(Player player, ArrayList<SheepStack> sheepStacks, TurnState parent){
+	public TurnState(Player player, ArrayList<SheepStack> sheepStacks, State parent){
 		this.sheepStacks = sheepStacks;
 		this.player = player;
 		setParent(parent);
@@ -121,10 +120,12 @@ public class TurnState extends State{
     }
     
     public void computeScore(){
-        if(type == MIN)
+        if(type == MIN){
             gameScore = Integer.MIN_VALUE;
-        else
+            }
+        else{
 	gameScore = Integer.MAX_VALUE;
+	}
 	
         propagateScore();
 	
@@ -185,6 +186,22 @@ public class TurnState extends State{
 		// TODO Auto-generated method stub
 		
 	}
+	
+	public TurnState clone(){
+		ArrayList<SheepStack> tempSheepStacks = new ArrayList<>();
+		for(SheepStack s: sheepStacks)
+			tempSheepStacks.add(s.clone());
+		TurnState result = new TurnState(player, tempSheepStacks, parent);
+		result.setChildrenLeft(childrenLeft);
+		result.setStop(stop);
+		result.setGameScore(gameScore);
+		result.setType(type);
+		result.setScore(score);
+		return result;
+	}
+	public void setStop(boolean stop){this.stop = stop;}
+	public void setGameScore(int gameScore){this.gameScore = gameScore;}
+	public void setType(int type){this.type = type;}
 	
 	public boolean isStop(){return stop;}
 	
