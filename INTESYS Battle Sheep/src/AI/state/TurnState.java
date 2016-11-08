@@ -44,12 +44,31 @@ public class TurnState extends State{
 		setChildrenLeft(0);
 		type = GameState.getInstance().isCurrentPlayer(player) ? MAX : MIN;
 	}
+	
+	public static HexSpace getFarthestUnoccupiedSpace(int direction, HexSpace space, ArrayList<SheepStack> sheepStacks){
+		HexSpace result = space.getNeighbor(direction);
+		boolean isDone = false;
+		do{
+			if(result != null){
+				for(SheepStack s:sheepStacks)
+					if(s.getHexSpaceID() == result.getId())
+						return null;
+			} else isDone = true;
+			if(result.getNeighbor(direction) != null)
+				result = result.getNeighbor(direction);
+			else isDone = true;
+		}while(!isDone);
+		return result;
+	}
 
-	public static void moveSheep(int direction, int numberToMove , int sheepStackIndex, ArrayList<SheepStack> sheepStacks){
-		HexSpace space;
-		if((space = sheepStacks.get(sheepStackIndex).getHexSpace().getFarNeigbor(direction)) != null)
+	public static boolean moveSheep(int direction, int numberToMove , int sheepStackIndex, ArrayList<SheepStack> sheepStacks){
+		HexSpace space = getFarthestUnoccupiedSpace(direction, sheepStacks.get(sheepStackIndex).getHexSpace(), sheepStacks);
+		if(space != null){
 			if(sheepStacks.get(sheepStackIndex).divide(numberToMove))
 				sheepStacks.add(new SheepStack(space.getId(), numberToMove, sheepStacks.get(sheepStackIndex).getOwner()));
+		return true;	
+		}
+		return false;
 	}
 	
 	@Override
@@ -70,11 +89,11 @@ public class TurnState extends State{
 						for(SheepStack s: sheepStacks)
 							tempSheepStack.add(s.clone());
 						// move the sheep
-						moveSheep(direction, numberToMove, sheepStackIndex, tempSheepStack);
-						
-						// add to children
-						child++;
-						result.add(new TurnState(GameState.getInstance().getNextPlayer(player), tempSheepStack));
+						if(moveSheep(direction, numberToMove, sheepStackIndex, tempSheepStack)){
+							// add to children
+							child++;
+							result.add(new TurnState(GameState.getInstance().getNextPlayer(player), tempSheepStack));
+						}
 					}
 				}
 			}
@@ -85,8 +104,8 @@ public class TurnState extends State{
 	}
 	
 	public boolean isLeaf(){
-        
-        return true;
+		
+        return sheepStacks.size() == GameState.getInstance().getHexSpaceCount();
     }
     
     public void computeScore(){
@@ -148,7 +167,7 @@ public class TurnState extends State{
 
 	@Override
 	public boolean isFinal() {
-		return sheepStacks.size() == GameState.getInstance().getHexSpaceCount();
+		return isLeaf();
 	}
 
 	@Override
