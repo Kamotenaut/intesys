@@ -6,7 +6,7 @@ import AI.state.State;
 
 public abstract class Solver implements Runnable {
 
-	private Thread thread;
+	protected Thread thread;
 	
 	public Solver(){
 		thread = new Thread(this, "Computer AI Thread");

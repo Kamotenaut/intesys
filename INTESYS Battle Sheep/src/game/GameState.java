@@ -16,6 +16,7 @@ public class GameState {
 	private static GameState instance = null;
 	
 	private HashMap<Integer, HexSpace> map;
+	private ArrayList<HexSpace> hexList;
 	private ArrayList<Player> players;
 	private int currentPlayerIndex;
 	private int hexSpaceCount;
@@ -24,6 +25,7 @@ public class GameState {
 	private TurnState currTurn;
 	
 	private boolean isGameOver;
+	private boolean isTurnOver;
 	
 	private GameState(){
 		map = new HashMap<>();
@@ -31,6 +33,7 @@ public class GameState {
 		setCurrentPlayerIndex(0);
 		setHexSpaceCount(0);
 		setGameOver(false);
+		hexList = new ArrayList<>();
 	}
 	
 	public void init(Player player, int timerSec){
@@ -61,8 +64,10 @@ public class GameState {
 	// for testing
 	public void autoRunPlayer(){
 		while(!isGameOver){
-		getCurrentPlayer().doTurn();
-		nextTurn();
+			if(isTurnOver){
+				getCurrentPlayer().doTurn();
+				nextTurn();
+				}
 		}
 	}
 	
@@ -100,6 +105,7 @@ public class GameState {
 	public void addHexSpace(int id, HexSpace space){
 		if(!map.containsKey(id)){
 		map.put(id, space);
+		hexList.add(space);
 		hexSpaceCount++;
 		}
 	}
@@ -107,6 +113,7 @@ public class GameState {
 	public void addHexSpace(int id){
 		if(!map.containsKey(id)){
 		map.put(id, new HexSpace(id));
+		hexList.add(map.get(id));
 		hexSpaceCount++;
 		}
 	}
@@ -118,6 +125,37 @@ public class GameState {
 	public void setHexNeighbor(int id, int neighbor_id, int direction){
 		map.get(id).setNeighbor(direction, map.get(neighbor_id));
 		map.get(neighbor_id).setNeighbor((direction + 3) % HexSpace.MAX_NEIGHBORS, map.get(id));
+		
+		int xOffset = 0;
+		int yOffset = 0;
+		
+		switch(direction){
+		case HexSpace.N:
+			yOffset = -(HexSpace.RADIUS + HexSpace.Y_OFFSET);
+			break;
+		case HexSpace.S:
+			yOffset = HexSpace.RADIUS + HexSpace.Y_OFFSET;
+			break;
+		case HexSpace.NE:
+			xOffset = HexSpace.RADIUS + HexSpace.X_OFFSET;
+			yOffset = (HexSpace.RADIUS+ HexSpace.Y_OFFSET) - HexSpace.RADIUS * 3 - HexSpace.Y_FINE_OFFSET;
+			break;
+		case HexSpace.NW:
+			xOffset = -(HexSpace.RADIUS + HexSpace.X_OFFSET);
+			yOffset = (HexSpace.RADIUS + HexSpace.Y_OFFSET) - HexSpace.RADIUS * 3 - HexSpace.Y_FINE_OFFSET;
+			break;
+		case HexSpace.SE:
+			xOffset = HexSpace.RADIUS + HexSpace.X_OFFSET;
+			yOffset = -(HexSpace.RADIUS + HexSpace.Y_OFFSET) + HexSpace.RADIUS * 3 + HexSpace.Y_FINE_OFFSET;
+			break;
+		case HexSpace.SW:
+			xOffset = -(HexSpace.RADIUS + HexSpace.X_OFFSET);
+			yOffset = -(HexSpace.RADIUS + HexSpace.Y_OFFSET) + HexSpace.RADIUS * 3 + HexSpace.Y_FINE_OFFSET;
+			break;
+		}
+		
+		map.get(neighbor_id).setX(map.get(id).getX() + xOffset);
+		map.get(neighbor_id).setY(map.get(id).getY() + yOffset);
 	}
 
 	public int getCurrentPlayerIndex() {
@@ -159,5 +197,23 @@ public class GameState {
 	public void setGameOver(boolean isGameOver) {
 		this.isGameOver = isGameOver;
 	}
+
+	public boolean isTurnOver() {
+		return isTurnOver;
+	}
+
+	public void setTurnOver(boolean isTurnOver) {
+		this.isTurnOver = isTurnOver;
+	}
+
+	public ArrayList<HexSpace> getHexList() {
+		return hexList;
+	}
+
+	public void setHexList(ArrayList<HexSpace> hexList) {
+		this.hexList = hexList;
+	}
+	
+	public ArrayList<Player> getPlayers(){ return players;}
 	
 }

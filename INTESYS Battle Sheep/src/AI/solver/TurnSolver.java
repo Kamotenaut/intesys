@@ -66,6 +66,7 @@ public class TurnSolver extends Solver{
 	@Override
 	public void end() {
 		GameState.getInstance().setCurrentTurn((TurnState)getBestState(children));
+		GameState.getInstance().setTurnOver(true);
 	}
 	
 	public boolean containsState(State s, ArrayList<State> list){

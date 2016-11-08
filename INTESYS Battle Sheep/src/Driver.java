@@ -1,7 +1,12 @@
+import java.awt.Color;
+import java.util.ArrayList;
+
 import AI.state.TurnState;
 import game.GameState;
 import game.HexSpace;
+import game.SheepStack;
 import game.player.*;
+import window.GameWindow;
 
 public class Driver {
 
@@ -43,14 +48,23 @@ public class Driver {
 		GameState.getInstance().setHexNeighbor(5, 8, HexSpace.SE);
 		
 		// add players
-		GameState.getInstance().addPlayer(new HumanPlayer("P1"));
-		GameState.getInstance().addPlayer(new ComputerPlayer("P2"));
+		Player p1 = new HumanPlayer("P1", Color.BLUE);
+		Player p2 = new ComputerPlayer("P2", Color.RED);
+		GameState.getInstance().addPlayer(p1);
+		GameState.getInstance().addPlayer(p2);
+		
+		// Create initial SheepStacks
+		ArrayList<SheepStack> sheepStacks = new ArrayList<>();
+		sheepStacks.add(new SheepStack(1, 4, p1));
+		sheepStacks.add(new SheepStack(8, 4, p2));
 		
 		// set up initial state and timer
-		GameState.getInstance().init(GameState.getInstance().getCurrentPlayer(), GameState.NO_WAIT);
+		GameState.getInstance().init(GameState.getInstance().getCurrentPlayer(), GameState.NO_WAIT, sheepStacks);
 		
-		// start game
-		GameState.getInstance().autoRunPlayer();
+		// test start game
+		new GameWindow("Battle Sheeps", 740, 540, 15).start();
+		
+		//GameState.getInstance().autoRunPlayer();
 	}
 
 }
