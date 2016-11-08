@@ -28,6 +28,10 @@ public class GameState {
 	
 	public Player getCurrentPlayer(){ return players.get(currentPlayerIndex); }
 	
+	public Player getNextPlayer(){ return players.get( (currentPlayerIndex + 1) % players.size()); }
+	
+	public Player getNextPlayer(Player player){ return players.get( (player.getTurnNumber() + 1) % players.size()); }
+	
 	public Player getPlayer(int index){return players.get(index % players.size()); }
 	
 	public static synchronized GameState getInstance(){

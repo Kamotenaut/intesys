@@ -31,13 +31,32 @@ public class TurnState extends State{
 	
 	@Override
 	public ArrayList<State> getNextStates() {
+		int child = 0;
 		ArrayList<State> result = new ArrayList<>();
 		ArrayList<SheepStack> tempSheepStack;
-		
-		// call a new array list for each state so the pointers dont all point to the same arraylist
-		tempSheepStack = new ArrayList<>();
-		for(SheepStack s: sheepStacks)
-			tempSheepStack.add(s.clone());
+
+		for(int sheepStackIndex = 0; sheepStackIndex > sheepStacks.size(); sheepStackIndex++){
+			// if the stack belongs to the current player and the numSheep is > 1
+			if(sheepStacks.get(sheepStackIndex).getOwner().equals(player) && sheepStacks.get(sheepStackIndex).getNumberOfSheep() > 1){
+				// move sheep in 6 directions
+				for(int direction = 0; direction < HexSpace.MAX_NEIGHBORS; direction++){
+					// iterate using the number of sheep
+					for(int numberToMove = sheepStacks.get(sheepStackIndex).getNumberOfSheep() - 1; numberToMove > 0; numberToMove--){
+						// create new ArrayList of sheep stacks and deep copy
+						tempSheepStack = new ArrayList<>();
+						for(SheepStack s: sheepStacks)
+							tempSheepStack.add(s.clone());
+						// move the sheep
+						moveSheep(direction, numberToMove, sheepStackIndex, tempSheepStack);
+						
+						// add to children
+						child++;
+						result.add(new TurnState(GameState.getInstance().getNextPlayer(player), tempSheepStack));
+					}
+				}
+			}
+				
+		}
 		
 		return result;
 	}
