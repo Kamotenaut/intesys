@@ -48,6 +48,8 @@ public class Driver {
 		// setup TurnState
 		TurnState init = new TurnState(GameState.getInstance().getCurrentPlayer());
 		
+		
+		HexSpace test = GameState.getInstance().getHexSpace(1);
 	}
 
 }

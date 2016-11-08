@@ -3,8 +3,12 @@ package game;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import utils.SimpleTimer;
+
 public class GameState {
 
+	public static final int SEC_WAIT = 10;
+	
 	private static GameState instance = null;
 	
 	private HashMap<Integer, HexSpace> map;
@@ -12,12 +16,19 @@ public class GameState {
 	private int currentPlayerIndex;
 	private int hexSpaceCount;
 	
+	private SimpleTimer timer;
+	
 	private GameState(){
 		map = new HashMap<>();
 		players = new ArrayList<>();
 		setCurrentPlayerIndex(0);
 		setHexSpaceCount(0);
+		timer = new SimpleTimer((long) (SEC_WAIT * SimpleTimer.TO_SECONDS));
 	}
+
+	public boolean isTurnFinish(){return timer.checkTime();}
+	
+	public void resetTimer(){timer.restart();}
 	
 	public void addPlayer(Player player){
 		players.add(player);
@@ -81,6 +92,14 @@ public class GameState {
 
 	public void setHexSpaceCount(int hexSpaceCount) {
 		this.hexSpaceCount = hexSpaceCount;
+	}
+
+	public SimpleTimer getTimer() {
+		return timer;
+	}
+
+	public void setTimer(SimpleTimer timer) {
+		this.timer = timer;
 	}
 	
 }
