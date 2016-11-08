@@ -10,11 +10,13 @@ public class GameState {
 	private HashMap<Integer, HexSpace> map;
 	private ArrayList<Player> players;
 	private int currentPlayerIndex;
+	private int hexSpaceCount;
 	
 	private GameState(){
 		map = new HashMap<>();
 		players = new ArrayList<>();
 		setCurrentPlayerIndex(0);
+		setHexSpaceCount(0);
 	}
 	
 	public void addPlayer(Player player){
@@ -34,9 +36,18 @@ public class GameState {
 		return instance;
 	}
 	
+	public void addHexSpace(int id, HexSpace space){
+		if(!map.containsKey(id)){
+		map.put(id, space);
+		hexSpaceCount++;
+		}
+	}
+	
 	public void addHexSpace(int id){
-		if(!map.containsKey(id))
+		if(!map.containsKey(id)){
 		map.put(id, new HexSpace(id));
+		hexSpaceCount++;
+		}
 	}
 	
 	public HexSpace getHexSpace(int id){
@@ -53,6 +64,14 @@ public class GameState {
 
 	public void setCurrentPlayerIndex(int currentPlayerIndex) {
 		this.currentPlayerIndex = currentPlayerIndex;
+	}
+
+	public int getHexSpaceCount() {
+		return hexSpaceCount;
+	}
+
+	public void setHexSpaceCount(int hexSpaceCount) {
+		this.hexSpaceCount = hexSpaceCount;
 	}
 	
 }

@@ -2,6 +2,7 @@ package AI.state;
 
 import java.util.ArrayList;
 
+import game.GameState;
 import game.Player;
 import game.SheepStack;
 
@@ -32,8 +33,16 @@ public class TurnState extends State{
 
 	@Override
 	public boolean equals(State state) {
-		// TODO Auto-generated method stub
-		return false;
+		TurnState other = (TurnState)state;
+		if(!player.equals(other.getPlayer()))
+			return false;
+		if(sheepStacks.size() != other.getSheepStacks().size() )
+			return false;
+		for(int i = 0; i < sheepStacks.size(); i++)
+			if(sheepStacks.get(i).equals(other.getSheepStack(i)))
+				return false;
+		
+		return true;
 	}
 
 	@Override
@@ -44,8 +53,7 @@ public class TurnState extends State{
 
 	@Override
 	public boolean isFinal() {
-		// TODO Auto-generated method stub
-		return false;
+		return sheepStacks.size() == GameState.getInstance().getHexSpaceCount();
 	}
 
 	@Override
@@ -53,5 +61,9 @@ public class TurnState extends State{
 		// TODO Auto-generated method stub
 		
 	}
+	
+	public Player getPlayer(){return player;}
+	public ArrayList<SheepStack> getSheepStacks(){return sheepStacks;}
+	public SheepStack getSheepStack(int index){return sheepStacks.get(index);}
 
 }
