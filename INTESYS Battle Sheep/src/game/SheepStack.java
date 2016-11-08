@@ -16,15 +16,23 @@ public class SheepStack {
 		return new SheepStack(spaceID, numSheep, owner);
 	}
 	
+	public boolean equals(SheepStack sheepStack){
+		if(spaceID != sheepStack.getHexSpaceID())
+			return false;
+		if(!owner.equals(sheepStack.getOwner()))
+			return false;
+		return numSheep == sheepStack.getNumberOfSheep();
+	}
+	
 	public HexSpace getHexSpace(){
 		return GameState.getInstance().getHexSpace(spaceID); 
 		}
 
-	public int getNumSheep() {
+	public int getNumberOfSheep() {
 		return numSheep;
 	}
 
-	public void setNumSheep(int numSheep) {
+	public void setNumberOfSheep(int numSheep) {
 		this.numSheep = numSheep;
 	}
 

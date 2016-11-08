@@ -7,6 +7,8 @@ public class Player {
 	
 	
 	
+	public boolean equals(Player player){ return turnNo == player.getTurnNumber();}
+	
 	public String getName() {
 		return name;
 	}
