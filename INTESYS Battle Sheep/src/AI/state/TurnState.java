@@ -3,6 +3,7 @@ package AI.state;
 import java.util.ArrayList;
 
 import game.GameState;
+import game.HexSpace;
 import game.Player;
 import game.SheepStack;
 
@@ -21,12 +22,19 @@ public class TurnState extends State{
 		this.player = player;
 	}
 
+	public static void moveSheep(int direction, int numberToMove , int sheepStackIndex, ArrayList<SheepStack> sheepStacks){
+		HexSpace space;
+		if((space = sheepStacks.get(sheepStackIndex).getHexSpace().getFarNeigbor(direction)) != null)
+			if(sheepStacks.get(sheepStackIndex).divide(numberToMove))
+				sheepStacks.add(new SheepStack(space.getId(), numberToMove, sheepStacks.get(sheepStackIndex).getOwner()));
+	}
+	
 	@Override
 	public ArrayList<State> getNextStates() {
 		ArrayList<State> result = new ArrayList<>();
 		ArrayList<SheepStack> tempSheepStack;
 		
-		
+
 		
 		return result;
 	}

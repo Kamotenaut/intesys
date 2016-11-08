@@ -1,7 +1,7 @@
 package game;
 
 public class SheepStack {
-
+	
 	private int numSheep;
 	private int spaceID;
 	private Player owner;
@@ -10,6 +10,14 @@ public class SheepStack {
 		this.spaceID = spaceID;
 		this.numSheep = numSheep;
 		this.owner = owner;
+	}
+	
+	// returns true if divide is successful (eg before div sheep at least 2)
+	public boolean divide(int numberToTake){
+		if(numSheep == 1 && numberToTake >= numSheep)
+			return false;
+		numSheep -= numberToTake;
+		return true;
 	}
 	
 	public SheepStack clone(){
