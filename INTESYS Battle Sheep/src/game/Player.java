@@ -5,7 +5,9 @@ public class Player {
 	private String name;
 	private int turnNo;
 	
-	
+	public Player(String name){
+		setName(name);
+	}
 	
 	public boolean equals(Player player){ return turnNo == player.getTurnNumber();}
 	

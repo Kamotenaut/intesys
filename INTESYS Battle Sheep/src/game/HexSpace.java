@@ -7,9 +7,10 @@ public class HexSpace {
 	public static int N = 0;
 	public static int NE = 1;
 	public static int NW = 2;
-	public static int SE = 3;
+	public static int S = 3;
 	public static int SW = 4;
-	public static int S = 5;
+	public static int SE = 5;
+	
 	
 	private HexSpace[] neighbors;
 	private int id;

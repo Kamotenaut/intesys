@@ -64,6 +64,7 @@ public class GameState {
 	
 	public void setHexNeighbor(int id, int neighbor_id, int direction){
 		map.get(id).setNeighbor(direction, map.get(neighbor_id));
+		map.get(neighbor_id).setNeighbor((direction + 3) % HexSpace.MAX_NEIGHBORS, map.get(id));
 	}
 
 	public int getCurrentPlayerIndex() {
