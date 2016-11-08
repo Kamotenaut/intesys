@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public abstract class State {
 	
 	protected int score;
-	private State parent;
+	protected State parent;
 
 	public abstract ArrayList<State> getNextStates();
 	public abstract boolean equals(State state);
