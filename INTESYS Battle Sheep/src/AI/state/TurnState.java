@@ -174,6 +174,8 @@ public class TurnState extends State{
 		
 	}
 	
+	public boolean isStop(){return stop;}
+	
 	public Player getPlayer(){return player;}
 	public ArrayList<SheepStack> getSheepStacks(){return sheepStacks;}
 	public SheepStack getSheepStack(int index){return sheepStacks.get(index);}
