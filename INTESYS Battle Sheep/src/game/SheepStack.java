@@ -11,6 +11,8 @@ public class SheepStack {
 		this.numSheep = numSheep;
 		this.owner = owner;
 	}
+	
+	public HexSpace getHexSpace(){	return GameMap.getInstance().getHexSpace(spaceID); }
 
 	public int getNumSheep() {
 		return numSheep;
@@ -20,7 +22,7 @@ public class SheepStack {
 		this.numSheep = numSheep;
 	}
 
-	public int getSpaceID() {
+	public int getHexSpaceID() {
 		return spaceID;
 	}
 
