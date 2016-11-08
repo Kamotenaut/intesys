@@ -92,7 +92,7 @@ public class TurnState extends State{
 						if(moveSheep(direction, numberToMove, sheepStackIndex, tempSheepStack)){
 							// add to children
 							child++;
-							result.add(new TurnState(GameState.getInstance().getNextPlayer(player), tempSheepStack));
+							result.add(new TurnState(GameState.getInstance().getNextPlayer(player), tempSheepStack, this));
 						}
 					}
 				}
