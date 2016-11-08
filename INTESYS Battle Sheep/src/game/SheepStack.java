@@ -12,7 +12,13 @@ public class SheepStack {
 		this.owner = owner;
 	}
 	
-	public HexSpace getHexSpace(){	return GameMap.getInstance().getHexSpace(spaceID); }
+	public SheepStack clone(){
+		return new SheepStack(spaceID, numSheep, owner);
+	}
+	
+	public HexSpace getHexSpace(){
+		return GameState.getInstance().getHexSpace(spaceID); 
+		}
 
 	public int getNumSheep() {
 		return numSheep;
