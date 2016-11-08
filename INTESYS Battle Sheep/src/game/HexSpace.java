@@ -27,6 +27,8 @@ public class HexSpace {
 		this.id = id;
 	}
 	
+	public HexSpace[] getNeighbors(){ return neighbors; }
+	
 	public void setNeighbor(int direction, HexSpace neighbor){
 		neighbors[direction] = neighbor;
 	}

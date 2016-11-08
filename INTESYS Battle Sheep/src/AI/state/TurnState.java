@@ -104,8 +104,20 @@ public class TurnState extends State{
 	}
 	
 	public boolean isLeaf(){
+		int freeNeighbors;
+		for(SheepStack s: sheepStacks)
+			if(s.getNumberOfSheep() > 1)
+				for(HexSpace h :s.getHexSpace().getNeighbors())
+					if(h != null){
+						freeNeighbors = HexSpace.MAX_NEIGHBORS;
+						for(SheepStack compare: sheepStacks)
+							if(compare.getHexSpaceID() == h.getId())
+								freeNeighbors--;
+						if(freeNeighbors > 0)
+							return true;
+								}
 		
-        return sheepStacks.size() == GameState.getInstance().getHexSpaceCount();
+        return false;
     }
     
     public void computeScore(){
