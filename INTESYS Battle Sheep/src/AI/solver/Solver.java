@@ -1,5 +1,6 @@
 package AI.solver;
 
+import AI.state.State;
 
 public abstract class Solver implements Runnable {
 
@@ -11,10 +12,9 @@ public abstract class Solver implements Runnable {
 	
 	public void start(){
 		thread.start();
+		run();
 	}
 	
-	public void run(){
-		
-	}
+	public abstract void run();
 	
 }
