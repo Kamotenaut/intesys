@@ -34,7 +34,10 @@ public class TurnState extends State{
 		ArrayList<State> result = new ArrayList<>();
 		ArrayList<SheepStack> tempSheepStack;
 		
-
+		// call a new array list for each state so the pointers dont all point to the same arraylist
+		tempSheepStack = new ArrayList<>();
+		for(SheepStack s: sheepStacks)
+			tempSheepStack.add(s.clone());
 		
 		return result;
 	}
