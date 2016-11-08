@@ -33,6 +33,7 @@ public class GameState {
 		setCurrentPlayerIndex(0);
 		setHexSpaceCount(0);
 		setGameOver(false);
+		setTurnOver(true);
 		hexList = new ArrayList<>();
 	}
 	
@@ -65,6 +66,7 @@ public class GameState {
 	public void autoRunPlayer(){
 		while(!isGameOver){
 			if(isTurnOver){
+				setTurnOver(false);
 				getCurrentPlayer().doTurn();
 				nextTurn();
 				}

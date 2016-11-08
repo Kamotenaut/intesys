@@ -64,7 +64,7 @@ public class Driver {
 		// test start game
 		new GameWindow("Battle Sheeps", 740, 540, 15).start();
 		
-		//GameState.getInstance().autoRunPlayer();
+		GameState.getInstance().autoRunPlayer();
 	}
 
 }

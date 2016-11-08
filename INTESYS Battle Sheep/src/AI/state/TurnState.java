@@ -44,23 +44,38 @@ public class TurnState extends State{
 		type = GameState.getInstance().isCurrentPlayer(player) ? MAX : MIN;
 	}
 	
-	public static HexSpace getFarthestUnoccupiedSpace(int direction, HexSpace space, ArrayList<SheepStack> sheepStacks){
+	public boolean isSpaceOccupied(HexSpace space){
+		for(SheepStack s:sheepStacks)
+			if(s.getHexSpaceID() == space.getId())
+				return true;
+		return false;
+	}
+	
+	public boolean isSpaceOccupied(HexSpace space, ArrayList<SheepStack> sheepStacks){
+		for(SheepStack s:sheepStacks)
+			if(s.getHexSpaceID() == space.getId())
+				return true;
+		return false;
+	}
+	
+	public HexSpace getFarthestUnoccupiedSpace(int direction, HexSpace space, ArrayList<SheepStack> sheepStacks){
+		
 		HexSpace result = space.getNeighbor(direction);
-		boolean isDone = false;
-		do{
-			if(result != null){
-				for(SheepStack s:sheepStacks)
-					if(s.getHexSpaceID() == result.getId())
-						return null;
-			} else isDone = true;
-			if(result.getNeighbor(direction) != null)
-				result = result.getNeighbor(direction);
-			else isDone = true;
-		}while(!isDone);
+		
+		if(result == null)
+			return null;
+		if(isSpaceOccupied(result, sheepStacks))
+			return null;
+		while(result.getNeighbor(direction) != null){
+			if(isSpaceOccupied(result.getNeighbor(direction), sheepStacks))
+				break;
+			result = result.getNeighbor(direction);
+		}
+		
 		return result;
 	}
 
-	public static boolean moveSheep(int direction, int numberToMove , int sheepStackIndex, ArrayList<SheepStack> sheepStacks){
+	public boolean moveSheep(int direction, int numberToMove , int sheepStackIndex, ArrayList<SheepStack> sheepStacks){
 		HexSpace space = getFarthestUnoccupiedSpace(direction, sheepStacks.get(sheepStackIndex).getHexSpace(), sheepStacks);
 		if(space != null){
 			if(sheepStacks.get(sheepStackIndex).divide(numberToMove))
@@ -68,6 +83,30 @@ public class TurnState extends State{
 		return true;	
 		}
 		return false;
+	}
+	
+	public boolean moveSheep(int fromSpace, int toSpace, int numSheep){
+		HexSpace result = GameState.getInstance().getHexSpace(fromSpace);
+		if(result == null)
+			return false;
+		for(int direction = 0; direction < HexSpace.MAX_NEIGHBORS; direction++){
+			result = GameState.getInstance().getHexSpace(fromSpace).getNeighbor(direction);
+			if(result == null)
+				continue;
+			if(isSpaceOccupied(result))
+				continue;
+			if(result.getId() == toSpace)
+				if(!isSpaceOccupied(result))
+					return true;
+			while(result.getNeighbor(direction) != null){
+				if(result.getId() == toSpace)
+					if(!isSpaceOccupied(result))
+						return true;
+				result = result.getNeighbor(direction);
+			}
+		}
+		return false;
+					
 	}
 	
 	@Override
