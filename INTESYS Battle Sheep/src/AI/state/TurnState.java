@@ -9,17 +9,40 @@ import game.SheepStack;
 
 public class TurnState extends State{
 	
-	ArrayList<SheepStack> sheepStacks;
-	Player player;
+	public static final int MIN = 0;
+	public static final int MAX = 1;
+	
+	private ArrayList<SheepStack> sheepStacks;
+	private Player player;
+	
+    private int childrenLeft;
+    private boolean stop = false;
+    private int gameScore = 0;
+    private int type;
+
 	
 	public TurnState(Player player){
 		sheepStacks = new ArrayList<>();
 		this.player = player;
+		setParent(null);
+		setChildrenLeft(0);
+		type = GameState.getInstance().isCurrentPlayer(player) ? MAX : MIN;
 	}
 	
 	public TurnState(Player player, ArrayList<SheepStack> sheepStacks){
 		this.sheepStacks = sheepStacks;
 		this.player = player;
+		setParent(null);
+		setChildrenLeft(0);
+		type = GameState.getInstance().isCurrentPlayer(player) ? MAX : MIN;
+	}
+	
+	public TurnState(Player player, ArrayList<SheepStack> sheepStacks, TurnState parent){
+		this.sheepStacks = sheepStacks;
+		this.player = player;
+		setParent(parent);
+		setChildrenLeft(0);
+		type = GameState.getInstance().isCurrentPlayer(player) ? MAX : MIN;
 	}
 
 	public static void moveSheep(int direction, int numberToMove , int sheepStackIndex, ArrayList<SheepStack> sheepStacks){
@@ -60,6 +83,48 @@ public class TurnState extends State{
 		
 		return result;
 	}
+	
+	public boolean isLeaf(){
+        
+        return true;
+    }
+    
+    public void computeScore(){
+        if(type == MIN)
+            gameScore = Integer.MIN_VALUE;
+        else
+	gameScore = Integer.MAX_VALUE;
+	
+        propagateScore();
+	
+        setScore(gameScore);
+    }
+    
+    public void propagateScore(){
+        if(parent!=null && childrenLeft==0)
+            ((TurnState) parent).submit(this);
+    }
+    
+    public void submit(State s){
+        if(type==MIN){
+            gameScore=Math.min(gameScore,((TurnState)s).gameScore);
+        } else{
+            gameScore=Math.max(gameScore, ((TurnState)s).gameScore);
+        }
+        if(childrenLeft==0){
+            propagateScore();
+        } else{
+            if(type==MAX && ((TurnState) parent).getGameScore()<=gameScore){
+                stop=true;
+            }
+            else if(type==MIN&&gameScore<=((TurnState) parent).getGameScore()){
+                stop = true;
+            }
+        }
+        if(stop)
+            propagateScore();
+        
+    }
 
 	@Override
 	public boolean equals(State state) {
@@ -95,5 +160,15 @@ public class TurnState extends State{
 	public Player getPlayer(){return player;}
 	public ArrayList<SheepStack> getSheepStacks(){return sheepStacks;}
 	public SheepStack getSheepStack(int index){return sheepStacks.get(index);}
+
+	public int getChildrenLeft() {
+		return childrenLeft;
+	}
+
+	public void setChildrenLeft(int childrenLeft) {
+		this.childrenLeft = childrenLeft;
+	}
+	
+	public int getGameScore(){return gameScore; }
 
 }

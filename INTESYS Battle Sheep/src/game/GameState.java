@@ -28,6 +28,10 @@ public class GameState {
 	
 	public Player getCurrentPlayer(){ return players.get(currentPlayerIndex); }
 	
+	public boolean isCurrentPlayer(Player player){ return player.getTurnNumber() == currentPlayerIndex; }
+	
+	public boolean isCurrentPlayer(int index){ return index == currentPlayerIndex; }
+	
 	public Player getNextPlayer(){ return players.get( (currentPlayerIndex + 1) % players.size()); }
 	
 	public Player getNextPlayer(Player player){ return players.get( (player.getTurnNumber() + 1) % players.size()); }
