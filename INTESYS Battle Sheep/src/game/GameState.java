@@ -3,6 +3,7 @@ package game;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import AI.state.State;
 import utils.SimpleTimer;
 
 public class GameState {
@@ -17,6 +18,8 @@ public class GameState {
 	private int hexSpaceCount;
 	
 	private SimpleTimer timer;
+	
+	private State currTurn;
 	
 	private GameState(){
 		map = new HashMap<>();
@@ -100,6 +103,14 @@ public class GameState {
 
 	public void setTimer(SimpleTimer timer) {
 		this.timer = timer;
+	}
+
+	public State getCurrentTurn() {
+		return currTurn;
+	}
+
+	public void setCurrentTurn(State currTurn) {
+		this.currTurn = currTurn;
 	}
 	
 }

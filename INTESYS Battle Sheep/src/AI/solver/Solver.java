@@ -7,12 +7,12 @@ public abstract class Solver implements Runnable {
 	private Thread thread;
 	
 	public Solver(){
-		thread = new Thread(this, "Solver Thread");
+		//thread = new Thread(this, "Solver Thread");
 	}
 	
 	public void start(){
-		thread.start();
-		run();
+		//thread.start();
+		//run();
 	}
 	
 	public abstract void run();

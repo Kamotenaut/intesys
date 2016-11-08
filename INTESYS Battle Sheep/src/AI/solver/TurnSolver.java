@@ -46,5 +46,11 @@ public class TurnSolver extends Solver{
         }
         
     }
+
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		
+	}
     
 }
