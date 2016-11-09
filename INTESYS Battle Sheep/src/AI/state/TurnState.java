@@ -198,7 +198,7 @@ public class TurnState extends State{
         
        
         gameScore = takenSpaces * 100 + spacesWithSingleSheep * 10 - numEnemySpaces;
-	}
+	
 
         setScore(gameScore);
         propagateScore();
