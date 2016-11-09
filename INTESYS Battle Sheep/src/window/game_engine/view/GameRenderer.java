@@ -8,6 +8,7 @@ import game.GameState;
 import game.HexSpace;
 import game.SheepStack;
 import game.player.Player;
+import utils.SimpleTimer;
 import window.game_engine.model.Camera;
 
 public class GameRenderer extends Renderer{
@@ -53,6 +54,12 @@ public class GameRenderer extends Renderer{
 		}
 		rendIn.setColor(Color.BLACK);
 		rendIn.drawString("Use [ARROWKEYS] to move map.", x, height - 14);
+		rendIn.drawString("AI turn timer: " + GameState.getInstance().getTimer().checkCurrentTime() / SimpleTimer.TO_SECONDS, x, height - 14 * 2);
+		
+		if(GameState.getInstance().isGameOver()){
+			rendIn.setColor(Color.BLACK);
+			rendIn.drawString("Game Over!", width/2, height/2);
+		}
 	}
 	
 	public void drawHex(Graphics2D rendIn, int x, int y, int r){

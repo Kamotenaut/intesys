@@ -31,7 +31,6 @@ public class TurnSolver extends Solver{
 	public void process() {
 		GameState.getInstance().resetTimer();
 		//GameState.getInstance().isTurnFinish();
-		
         while(!explore.isEmpty()){
         	/*
             currState = explore.get(0);
@@ -39,16 +38,39 @@ public class TurnSolver extends Solver{
             *
             * use only states with the highest score
             */
-        	currState = getBestState(explore);
+        	System.out.println(1);
+        	currState = getBestState();
+        	//System.out.println(currState);
+        	System.out.println(2);
             visited.add(currState);
+            // first state
+
+        	System.out.println(3);
+        	System.out.println(GameState.getInstance().isTurnFinish());
+            if(((TurnState)currState).isLeaf() || GameState.getInstance().isTurnFinish()){
+
+            	System.out.println(4);
+				((TurnState)currState).computeScore();
+				if(GameState.getInstance().isTurnFinish())
+	            	break;
+			}
+            
+            /*
+            if(currState.getParent() != null)
             if(((TurnState)currState.getParent()).isStop())
                     continue;
             else if(((TurnState)currState).isLeaf())
                 ((TurnState)currState).computeScore();
+                */
+            
             else{
                 next = currState.getNextStates();
+                //System.out.println(((TurnState)currState).getPlayer().getName());
+                //System.out.println(next.size());
                 for(State s: next){
                     //check if s is not in visited && s is not in explore && s.isValid()
+                	//System.out.println(!containsState(s, visited));
+                	//System.out.println(!containsState(s, explore));
                     if(!containsState(s, visited) && !containsState(s, explore)){
                         explore.add(0,s);
                         if(!isInitialChildren)
@@ -57,15 +79,18 @@ public class TurnSolver extends Solver{
                 }
                 if(isInitialChildren == false)
                 	isInitialChildren = true;
-                if(GameState.getInstance().isTurnFinish())
-                	break;
+                
             }
         }
 	}
 
 	@Override
 	public void end() {
-		GameState.getInstance().setCurrentTurn((TurnState)getBestState(children));
+		GameState.getInstance().getTimer().setResult(true);
+		TurnState temp = GameState.getInstance().getCurrentTurn();
+		if(children.size() != 0)
+			temp =(TurnState)getBestState(children);
+		GameState.getInstance().setCurrentTurn(temp);
 		GameState.getInstance().setTurnOver(true);
 	}
 	
@@ -76,20 +101,29 @@ public class TurnSolver extends Solver{
 		return false;
 	}
 
+	public State getBestState(){
+		int index = 0;
+		for(int i = 0; i < explore.size(); i++){
+			if(explore.get(i).getScore() >= explore.get(index).getScore()){
+				index = i;
+			}
+		}
+		if(index == -1)
+			System.out.println("ERROR no best state");
+		return explore.remove(index);
+	}
+	
 	@Override
 	public State getBestState(ArrayList<State> list) {
-		int score = Integer.MIN_VALUE;
-		int index = -1;
-
-		for(int i = 0; i < explore.size();i++){
-			if(explore.get(i).getScore() >= score){
-				score = explore.get(i).getScore();
+		int index = 0;
+		for(int i = 0; i < list.size(); i++){
+			if(list.get(i).getScore() >= list.get(index).getScore()){
 				index = i;
-						}
+			}
 		}
-		if(index != -1)
-			return explore.remove(0);
-		return null;
+		if(index == -1)
+			System.out.println("ERROR no best state");
+		return list.remove(index);
 	}
     
 }

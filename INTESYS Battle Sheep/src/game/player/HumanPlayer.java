@@ -30,10 +30,11 @@ public class HumanPlayer extends Player{
 		System.out.println("Enter How many sheep you wish to move. ");
 		numSheep = sc.nextInt();
 		
-		success = result.moveSheep(fromSpace, toSpace, numSheep);
+		success = result.moveSheep(fromSpace, toSpace, numSheep, this);
 		if(!success)
 			System.out.println("Input may not be valid... ");
 		}while(!success);
+		result.setPlayer(GameState.getInstance().getNextPlayer());
 		GameState.getInstance().setCurrentTurn(result);
 		GameState.getInstance().setTurnOver(true);
 	}

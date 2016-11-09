@@ -4,16 +4,12 @@ import java.util.ArrayList;
 
 import AI.state.State;
 
-public abstract class Solver implements Runnable {
-
-	protected Thread thread;
+public abstract class Solver {
 	
 	public Solver(){
-		thread = new Thread(this, "Computer AI Thread");
 	}
 	
 	public void start(){
-		thread.start();
 		run();
 	}
 	

@@ -61,21 +61,27 @@ public class TurnState extends State{
 	public HexSpace getFarthestUnoccupiedSpace(int direction, HexSpace space, ArrayList<SheepStack> sheepStacks){
 		
 		HexSpace result = space.getNeighbor(direction);
-		
+		HexSpace prev = null;
 		if(result == null)
 			return null;
 		if(isSpaceOccupied(result, sheepStacks))
 			return null;
-		while(result.getNeighbor(direction) != null){
+		prev = result;
+		while(result != null && prev != null){
+			prev = result;
+			if(result.getNeighbor(direction) != null)
 			if(isSpaceOccupied(result.getNeighbor(direction), sheepStacks))
-				break;
+				return prev;
+			
 			result = result.getNeighbor(direction);
 		}
-		
+		if(result == null)
+			return prev;
 		return result;
 	}
 
 	public boolean moveSheep(int direction, int numberToMove , int sheepStackIndex, ArrayList<SheepStack> sheepStacks){
+
 		HexSpace space = getFarthestUnoccupiedSpace(direction, sheepStacks.get(sheepStackIndex).getHexSpace(), sheepStacks);
 		if(space != null){
 			if(sheepStacks.get(sheepStackIndex).divide(numberToMove))
@@ -85,8 +91,11 @@ public class TurnState extends State{
 		return false;
 	}
 	
-	public boolean moveSheep(int fromSpace, int toSpace, int numSheep){
+	public boolean moveSheep(int fromSpace, int toSpace, int numSheep, Player player){
+		if(!GameState.getInstance().getCurrentPlayer().equals(player))
+			return false;
 		HexSpace result = GameState.getInstance().getHexSpace(fromSpace);
+		HexSpace prev = null;
 		if(result == null)
 			return false;
 		for(int direction = 0; direction < HexSpace.MAX_NEIGHBORS; direction++){
@@ -95,13 +104,19 @@ public class TurnState extends State{
 				continue;
 			if(isSpaceOccupied(result))
 				continue;
-			if(result.getId() == toSpace)
-				if(!isSpaceOccupied(result))
-					return true;
-			while(result.getNeighbor(direction) != null){
-				if(result.getId() == toSpace)
-					if(!isSpaceOccupied(result))
-						return true;
+			prev = result;
+			while(result != null && prev != null){
+				prev = result;
+				if(result.getId() == toSpace){
+					for(SheepStack s:sheepStacks)
+						if(s.getHexSpaceID() == fromSpace)
+							if(s.divide(numSheep)){
+								sheepStacks.add(new SheepStack(result.getId(), numSheep, s.getOwner()));
+								return true;
+							} else return false;
+							
+				}
+				//System.out.println(result.getId());
 				result = result.getNeighbor(direction);
 			}
 		}
@@ -114,14 +129,15 @@ public class TurnState extends State{
 		int child = 0;
 		ArrayList<State> result = new ArrayList<>();
 		ArrayList<SheepStack> tempSheepStack;
-
-		for(int sheepStackIndex = 0; sheepStackIndex > sheepStacks.size(); sheepStackIndex++){
+		boolean quit = false;
+		for(int sheepStackIndex = 0; sheepStackIndex < sheepStacks.size() && !quit; sheepStackIndex++){
 			// if the stack belongs to the current player and the numSheep is > 1
 			if(sheepStacks.get(sheepStackIndex).getOwner().equals(player) && sheepStacks.get(sheepStackIndex).getNumberOfSheep() > 1){
 				// move sheep in 6 directions
-				for(int direction = 0; direction < HexSpace.MAX_NEIGHBORS; direction++){
+				for(int direction = 0; direction < HexSpace.MAX_NEIGHBORS && !quit; direction++){
+					//System.out.println("T");
 					// iterate using the number of sheep
-					for(int numberToMove = sheepStacks.get(sheepStackIndex).getNumberOfSheep() - 1; numberToMove > 0; numberToMove--){
+					for(int numberToMove = sheepStacks.get(sheepStackIndex).getNumberOfSheep() - 1; numberToMove > 0  && !quit; numberToMove--){
 						// create new ArrayList of sheep stacks and deep copy
 						tempSheepStack = new ArrayList<>();
 						for(SheepStack s: sheepStacks)
@@ -130,7 +146,9 @@ public class TurnState extends State{
 						if(moveSheep(direction, numberToMove, sheepStackIndex, tempSheepStack)){
 							// add to children
 							child++;
-							result.add(new TurnState(GameState.getInstance().getNextPlayer(player), tempSheepStack, this));
+							result.add(new TurnState(GameState.getInstance().getNextPlayer(), tempSheepStack, this));
+
+							if(GameState.getInstance().isTurnFinish()) quit = true;
 						}
 					}
 				}
@@ -143,33 +161,48 @@ public class TurnState extends State{
 	
 	public boolean isLeaf(){
 		int freeNeighbors;
+		int numNeighbors;
 		for(SheepStack s: sheepStacks)
-			if(s.getNumberOfSheep() > 1)
-				for(HexSpace h :s.getHexSpace().getNeighbors())
+			if(s.getNumberOfSheep() > 1){
+				numNeighbors = 0;
+				for(HexSpace h : s.getHexSpace().getNeighbors())
+					if(h != null)
+						numNeighbors++;
+				for(HexSpace h : s.getHexSpace().getNeighbors())
 					if(h != null){
-						freeNeighbors = HexSpace.MAX_NEIGHBORS;
-						for(SheepStack compare: sheepStacks)
+						freeNeighbors = numNeighbors;
+						for(SheepStack compare: sheepStacks){
 							if(compare.getHexSpaceID() == h.getId())
 								freeNeighbors--;
+							
+						}
 						if(freeNeighbors > 0)
-							return true;
+							return false;
 								}
+			}
 		
-        return false;
+        return true;
     }
     
     public void computeScore(){
-        if(type == MIN){
-            gameScore = Integer.MIN_VALUE;
-            }
-        else{
-	gameScore = Integer.MAX_VALUE;
+    	int takenSpaces = 0;
+    	int spacesWithSingleSheep = 0;
+    	int numEnemySpaces = 0;
+    	
+        for(SheepStack s: sheepStacks)
+        	if(s.getOwner().equals(player)){
+        		takenSpaces++;
+        		if(s.getNumberOfSheep() > 3)
+        		spacesWithSingleSheep++;
+        	} else numEnemySpaces++;
+        
+       
+        gameScore = takenSpaces * 100 + spacesWithSingleSheep * 10 - numEnemySpaces;
 	}
-	
-        propagateScore();
-	
+
         setScore(gameScore);
-    }
+        propagateScore();
+    }	
     
     public void propagateScore(){
         if(parent!=null && childrenLeft==0)
@@ -243,7 +276,7 @@ public class TurnState extends State{
 	public void setType(int type){this.type = type;}
 	
 	public boolean isStop(){return stop;}
-	
+	public void setPlayer(Player player){this.player = player;}
 	public Player getPlayer(){return player;}
 	public ArrayList<SheepStack> getSheepStacks(){return sheepStacks;}
 	public SheepStack getSheepStack(int index){return sheepStacks.get(index);}

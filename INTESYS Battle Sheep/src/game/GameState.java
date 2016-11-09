@@ -64,13 +64,14 @@ public class GameState {
 	
 	// for testing
 	public void autoRunPlayer(){
-		while(!isGameOver){
+		while(!isGameOver && !isGameOver){
 			if(isTurnOver){
 				setTurnOver(false);
 				getCurrentPlayer().doTurn();
 				nextTurn();
 				}
 		}
+		System.out.println("Game Over!");
 	}
 	
 	public void nextTurn(){
