@@ -10,7 +10,7 @@ import javax.swing.GroupLayout.SequentialGroup;
 import game.GameState;
 import window.game_engine.Input.Input;
 import window.game_engine.Input.InputType;
-import window.game_engine.model.camera.Camera;
+import window.game_engine.model.Camera;
 import window.game_engine.view.GameRenderer;
 import window.game_engine.view.Renderer;
 
@@ -18,10 +18,9 @@ public class MainEngine {
 	
 	private GameState state;
 	
-	
-	// Controllers
-	private Controller controller;
 	private Renderer renderer;
+	
+	private Controller controller;
 	
 	private Camera camera;
 	
@@ -34,26 +33,38 @@ public class MainEngine {
 		setHeight(height);
 		setInput(new Input());
 		setGameState(GameState.getInstance());
-		setCamera(new Camera());
+		setCamera(new Camera(0, 0, 5));
 		//getCamera().setLeft_limit(15);
 		//getCamera().setTop_limit(75);
 		//getCamera().setBottom_limit(15);
-		setRenderer(new GameRenderer( width, height, getCamera()));
-		setController(new Controller(width, height, getCamera()));
+		setRenderer(new GameRenderer( width, height, getCamera(), state));
+		setController(new Controller(width, height, state));
 	}
 	
 	// keyboard
 	public void input(InputType type, int code) {
-		input.inputKeyboard(type, code);
+		switch(type){
+		case KEY_PRESS:
+			input.setKey(code, true);
+			break;
+		case KEY_RELEASE:
+			input.setKey(code, false);
+			break;
+		default:
+		}
 	}
 	
 	// mouse
 	public void input(InputType type, int code, int x, int y) {
-		input.inputMouse(type, code, x, y);
+		
 	}
 
 	public void update(float deltaTime) {
+		camera.process(input.getKey(KeyEvent.VK_UP), input.getKey(KeyEvent.VK_DOWN), 
+				input.getKey(KeyEvent.VK_LEFT), input.getKey(KeyEvent.VK_RIGHT));
+		
 		getController().update(deltaTime);
+		
 	}
 	
 	public void render(Graphics2D rendIn) {

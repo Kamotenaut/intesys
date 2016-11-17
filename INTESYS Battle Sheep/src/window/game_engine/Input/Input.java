@@ -18,25 +18,6 @@ public class Input {
 		setMouseCoords(new int[2]);
 	}
 
-
-	// keyboard
-		public void inputKeyboard(InputType type, int code) {
-			switch(type){
-			case KEY_PRESS:
-				setKey(code, true);
-				break;
-			case KEY_RELEASE:
-				setKey(code, false);
-				break;
-			default:
-			}
-		}
-		
-		// mouse
-		public void inputMouse(InputType type, int code, int x, int y) {
-			
-		}
-	
 	public int getMouseX(){return mouseCoords[0]; }
 	public int getMouseY(){return mouseCoords[1]; }
 	

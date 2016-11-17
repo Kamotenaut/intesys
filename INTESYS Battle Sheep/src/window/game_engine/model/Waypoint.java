@@ -1,19 +1,14 @@
 package window.game_engine.model;
 
-public class GameObject {
+public class Waypoint {
+	
+	private int x, y;
+	
+	public Waypoint(int x, int y){
+		setX(x);
+		setY(y);
+	}
 
-	protected int x, y;
-	
-	public GameObject(){
-		x = 0;
-		y = 0;
-	}
-	
-	public void setCoords(int x, int y){
-		this.x = x;
-		this.y = y;
-	}
-	
 	public int getY() {
 		return y;
 	}

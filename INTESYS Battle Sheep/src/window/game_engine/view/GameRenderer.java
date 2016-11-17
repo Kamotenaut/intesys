@@ -9,22 +9,26 @@ import game.HexSpace;
 import game.SheepStack;
 import game.player.Player;
 import utils.SimpleTimer;
-import window.game_engine.model.camera.Camera;
+import window.game_engine.model.Camera;
 
 public class GameRenderer extends Renderer{
 
-	//private GameState state;
+	private GameState state;
 	
-	public GameRenderer(int width, int height, Camera camera) {
+	public GameRenderer(int width, int height, Camera camera, GameState state) {
 		super(width, height, camera);
+		setState(state);
 	}
 
 	@Override
 	public void render(Graphics2D rendIn) {
-		for(HexSpace h :getState().getHexList()){
-			h.render(rendIn, camera);
+		for(HexSpace h :GameState.getInstance().getHexList()){
+		rendIn.setColor(HexSpace.DEFAULT_COLOR);
+		drawHex(rendIn, width / 2 + camera.getX() + h.getX(), height / 2 + camera.getY() + h.getY(), HexSpace.RADIUS);
+		rendIn.drawString("ID: "+h.getId(), width / 2 + camera.getX() + h.getX() - 14,
+				height / 2 + camera.getY() + h.getY() - 14);
 		
-		for(SheepStack s: getState().getCurrentTurn().getSheepStacks()){
+		for(SheepStack s:GameState.getInstance().getCurrentTurn().getSheepStacks()){
 			rendIn.setColor(s.getOwner().getColor());
 			drawHex(rendIn, width / 2 + camera.getX() + s.getHexSpace().getX(), height / 2 + camera.getY() + s.getHexSpace().getY(), HexSpace.RADIUS);
 			rendIn.drawString("ID: "+s.getHexSpace().getId(), width / 2 + camera.getX() + s.getHexSpace().getX() - 14,
@@ -40,19 +44,19 @@ public class GameRenderer extends Renderer{
 	public void drawInfo(Graphics2D rendIn, int x, int y){
 		rendIn.setColor(Color.BLACK);
 		rendIn.drawString("Current Turn: ",x,y);
-		rendIn.setColor(getState().getCurrentPlayer().getColor());
-		rendIn.drawString(getState().getCurrentPlayer().getName(),x + 80,y);
+		rendIn.setColor(state.getCurrentPlayer().getColor());
+		rendIn.drawString(state.getCurrentPlayer().getName(),x + 80,y);
 		rendIn.setColor(Color.BLACK);
 		rendIn.drawString("Players: ",x,y + 14);
-		for(int i = 0; i < getState().getPlayers().size(); i++){
-			rendIn.setColor(getState().getPlayers().get(i).getColor());
-			rendIn.drawString(getState().getPlayers().get(i).getName(),x + 3,(y + ((i+2) * 14)) + 3);
+		for(int i = 0; i < state.getPlayers().size(); i++){
+			rendIn.setColor(state.getPlayers().get(i).getColor());
+			rendIn.drawString(state.getPlayers().get(i).getName(),x + 3,(y + ((i+2) * 14)) + 3);
 		}
 		rendIn.setColor(Color.BLACK);
 		rendIn.drawString("Use [ARROWKEYS] to move map.", x, height - 14);
-		rendIn.drawString("AI turn timer: " + getState().getTimer().checkCurrentTime() / SimpleTimer.TO_SECONDS, x, height - 14 * 2);
+		rendIn.drawString("AI turn timer: " + GameState.getInstance().getTimer().checkCurrentTime() / SimpleTimer.TO_SECONDS, x, height - 14 * 2);
 		
-		if(getState().isGameOver()){
+		if(GameState.getInstance().isGameOver()){
 			rendIn.setColor(Color.BLACK);
 			rendIn.drawString("Game Over!", width/2, height/2);
 		}
@@ -67,7 +71,11 @@ public class GameRenderer extends Renderer{
 	}
 
 	public GameState getState() {
-		return GameState.getInstance();
+		return state;
+	}
+
+	public void setState(GameState state) {
+		this.state = state;
 	}
 
 }
