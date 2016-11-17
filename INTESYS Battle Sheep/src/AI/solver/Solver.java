@@ -1,20 +1,30 @@
 package AI.solver;
 
+import java.util.ArrayList;
 
-public abstract class Solver implements Runnable {
+import AI.state.State;
 
-	private Thread thread;
+public abstract class Solver {
 	
 	public Solver(){
-		thread = new Thread(this, "Solver Thread");
 	}
 	
 	public void start(){
-		thread.start();
+		run();
 	}
 	
+	public abstract void init();
+	
+	public abstract void process();
+	
+	public abstract void end();
+	
 	public void run(){
-		
+		init();
+		process();
+		end();
 	}
+	
+	public abstract State getBestState(ArrayList<State> list);
 	
 }

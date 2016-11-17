@@ -1,5 +1,7 @@
 package game;
 
+import game.player.Player;
+
 public class SheepStack {
 	
 	private int numSheep;
