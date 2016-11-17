@@ -2,7 +2,7 @@ package window.game_engine.view;
 
 import java.awt.Graphics2D;
 
-import window.game_engine.model.Camera;
+import window.game_engine.model.camera.Camera;
 
 public abstract class Renderer {
 
