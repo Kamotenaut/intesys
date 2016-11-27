@@ -39,6 +39,9 @@ public class Camera {
 			x = right_limit;
 	}
 	
+	public void reset(){
+		x = y = 0;}
+	
 	public int getY() {
 		return y;
 	}

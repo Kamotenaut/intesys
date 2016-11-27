@@ -1,24 +1,24 @@
 package game;
 
 import java.awt.Color;
+import java.awt.Polygon;
 
+import window.game_engine.model.Camera;
 import window.game_engine.model.GameObject;
 
 public class HexSpace extends GameObject{
 	
 	public static int MAX_NEIGHBORS = 6;
 	
-	public static final int N = 0;
-	public static final int NE = 1;
-	public static final int NW = 2;
-	public static final int S = 3;
-	public static final int SW = 4;
-	public static final int SE = 5;
+	public static final int N = 4;
+	public static final int NE = 5;
+	public static final int SE = 0;
+	public static final int S = 1;
+	public static final int SW = 2;
+	public static final int NW = 3;
 	
 	public static final int RADIUS = 30;
-	public static final int X_OFFSET = 18;
-	public static final int Y_OFFSET = 24;
-	public static final int Y_FINE_OFFSET = -8;
+	public static final float OFFSET = 0.1f;
 	
 	public static final Color DEFAULT_COLOR = Color.GRAY;
 	
@@ -31,6 +31,14 @@ public class HexSpace extends GameObject{
 		for(int i = 0; i < MAX_NEIGHBORS; i++)
 			neighbors[i] = null;
 		this.id = id;
+	}
+	
+	public Polygon generateSprite(Camera camera){
+		Polygon sprite = new Polygon(); 
+		for(int i=0; i<6; i++) {
+		    sprite.addPoint((int)(x + RADIUS*Math.cos(i*2*Math.PI/6)) + camera.getX(), (int)(y + RADIUS*Math.sin(i*2*Math.PI/6)) + camera.getY());
+		}
+		return sprite;
 	}
 	
 	public HexSpace(int id, HexSpace[] neighbors){

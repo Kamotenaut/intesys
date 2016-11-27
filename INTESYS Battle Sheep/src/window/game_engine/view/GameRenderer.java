@@ -24,17 +24,20 @@ public class GameRenderer extends Renderer{
 	public void render(Graphics2D rendIn) {
 		for(HexSpace h :GameState.getInstance().getHexList()){
 		rendIn.setColor(HexSpace.DEFAULT_COLOR);
-		drawHex(rendIn, width / 2 + camera.getX() + h.getX(), height / 2 + camera.getY() + h.getY(), HexSpace.RADIUS);
-		rendIn.drawString("ID: "+h.getId(), width / 2 + camera.getX() + h.getX() - 14,
-				height / 2 + camera.getY() + h.getY() - 14);
+		drawHex(rendIn, h);
+		rendIn.drawString("ID: "+h.getId(),
+				camera.getX() + h.getX() - 14,
+				camera.getY() + h.getY() - 14);
 		
 		for(SheepStack s:GameState.getInstance().getCurrentTurn().getSheepStacks()){
 			rendIn.setColor(s.getOwner().getColor());
-			drawHex(rendIn, width / 2 + camera.getX() + s.getHexSpace().getX(), height / 2 + camera.getY() + s.getHexSpace().getY(), HexSpace.RADIUS);
-			rendIn.drawString("ID: "+s.getHexSpace().getId(), width / 2 + camera.getX() + s.getHexSpace().getX() - 14,
-					height / 2 + camera.getY() + s.getHexSpace().getY() - 14);
-			rendIn.drawString("S: "+s.getNumberOfSheep(), width / 2 + camera.getX() + s.getHexSpace().getX() - 24,
-				height / 2 + camera.getY() + s.getHexSpace().getY() + 3);
+			drawHex(rendIn, s.getHexSpace());
+			rendIn.drawString("ID: "+s.getHexSpace().getId(),
+					camera.getX() + s.getHexSpace().getX() - 14,
+					camera.getY() + s.getHexSpace().getY() - 14);
+			rendIn.drawString("S: "+s.getNumberOfSheep(), 
+					camera.getX() + s.getHexSpace().getX() - 24,
+					camera.getY() + s.getHexSpace().getY() + 3);
 			}
 		}
 		
@@ -62,12 +65,9 @@ public class GameRenderer extends Renderer{
 		}
 	}
 	
-	public void drawHex(Graphics2D rendIn, int x, int y, int r){
-		Polygon sprite = new Polygon(); 
-		for(int i=0; i<6; i++) {
-		    sprite.addPoint((int)(x + r*Math.cos(i*2*Math.PI/6)), (int)(y + r*Math.sin(i*2*Math.PI/6)));
-		}
-		rendIn.drawPolygon(sprite);
+	public void drawHex(Graphics2D rendIn, HexSpace h){
+		
+		rendIn.drawPolygon(h.generateSprite(camera));
 	}
 
 	public GameState getState() {

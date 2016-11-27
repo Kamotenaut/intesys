@@ -126,39 +126,22 @@ public class GameState {
 	}
 	
 	public void setHexNeighbor(int id, int neighbor_id, int direction){
+		HexSpace neighbor = map.get(neighbor_id);
 		map.get(id).setNeighbor(direction, map.get(neighbor_id));
-		map.get(neighbor_id).setNeighbor((direction + 3) % HexSpace.MAX_NEIGHBORS, map.get(id));
+		neighbor.setNeighbor((direction + 3) % HexSpace.MAX_NEIGHBORS, map.get(id));
 		
-		int xOffset = 0;
-		int yOffset = 0;
 		
-		switch(direction){
-		case HexSpace.N:
-			yOffset = -(HexSpace.RADIUS + HexSpace.Y_OFFSET);
-			break;
-		case HexSpace.S:
-			yOffset = HexSpace.RADIUS + HexSpace.Y_OFFSET;
-			break;
-		case HexSpace.NE:
-			xOffset = HexSpace.RADIUS + HexSpace.X_OFFSET;
-			yOffset = (HexSpace.RADIUS+ HexSpace.Y_OFFSET) - HexSpace.RADIUS * 3 - HexSpace.Y_FINE_OFFSET;
-			break;
-		case HexSpace.NW:
-			xOffset = -(HexSpace.RADIUS + HexSpace.X_OFFSET);
-			yOffset = (HexSpace.RADIUS + HexSpace.Y_OFFSET) - HexSpace.RADIUS * 3 - HexSpace.Y_FINE_OFFSET;
-			break;
-		case HexSpace.SE:
-			xOffset = HexSpace.RADIUS + HexSpace.X_OFFSET;
-			yOffset = -(HexSpace.RADIUS + HexSpace.Y_OFFSET) + HexSpace.RADIUS * 3 + HexSpace.Y_FINE_OFFSET;
-			break;
-		case HexSpace.SW:
-			xOffset = -(HexSpace.RADIUS + HexSpace.X_OFFSET);
-			yOffset = -(HexSpace.RADIUS + HexSpace.Y_OFFSET) + HexSpace.RADIUS * 3 + HexSpace.Y_FINE_OFFSET;
-			break;
-		}
+		int x = 0;
+		int y = 0;
 		
-		map.get(neighbor_id).setX(map.get(id).getX() + xOffset);
-		map.get(neighbor_id).setY(map.get(id).getY() + yOffset);
+
+			x = (int)(HexSpace.RADIUS * (2 - HexSpace.OFFSET) * Math.cos((1 + direction *2)*Math.PI/6));
+			y = (int)(HexSpace.RADIUS * (2 - HexSpace.OFFSET) * Math.sin((1 + direction*2)*Math.PI/6));
+			x += neighbor.getX();
+			y += neighbor.getY();
+			
+		map.get(id).setX(x);
+		map.get(id).setY(y);
 	}
 
 	public int getCurrentPlayerIndex() {
