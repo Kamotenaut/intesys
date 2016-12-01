@@ -45,26 +45,24 @@ public class BattleSheepSolver extends Solver{
             	for(State state: next){
             		if(!containsState(state, visited) && !containsState(state, explore)){
                         explore.add(state);
-                        if(!childrenListFilled)
-                        	children.add(state);
                     }
-                
-                if(!childrenListFilled)
-                	childrenListFilled = true;
             	}
+
             	}
             }
 		}
-		
+		for(State s: visited)
+			if(s.getDepth() == 2)
+				children.add(s);
 	}
 
 	@Override
 	public void end() {
 		GameState.getInstance().resetTimer();
 		GameState.getInstance().getTimer().setResult(true);
-		State temp = GameState.getInstance().getCurrentTurn();
+		BattleSheepState temp = null;
 		if(children.size() != 0)
-			temp = getBestState(children);
+			temp = (BattleSheepState) getBestState(children);
 		GameState.getInstance().setCurrentTurn(temp);
 		GameState.getInstance().nextTurn();
 		GameState.getInstance().setTurnOver(true);

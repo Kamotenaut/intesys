@@ -96,7 +96,7 @@ public class PlayGameScene extends GameScene{
 						if(h.generateSprite(camera).contains(input.getMouseX(), input.getMouseY())){
 							// left click
 							for(SheepStack s: ((BattleSheepState)GameState.getInstance().getCurrentTurn()).getSheepStacks())
-								if(s.getHexSpaceID() == h.getId() && s.getNumberOfSheep() > 1){
+								if(s.getHexSpaceID() == h.getId() && s.getNumberOfSheep() > 1 && s.getOwner().equals(GameState.getInstance().getCurrentPlayer())){
 									if(sourceHex == null){
 										sourceHex = h;
 										maxSheep = s.getNumberOfSheep();

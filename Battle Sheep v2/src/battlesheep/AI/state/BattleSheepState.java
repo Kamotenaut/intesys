@@ -15,6 +15,7 @@ public class BattleSheepState extends State{
 	public static final int MAX_DEPTH = 4;
 	
 	private ArrayList<SheepStack> sheepStacks;
+	
 	private Player player;
 	
 	public BattleSheepState(Player player, ArrayList<SheepStack> sheepStacks){
@@ -38,20 +39,24 @@ public class BattleSheepState extends State{
 	@Override
 	public ArrayList<State> getNextStates() {
 		ArrayList<State> result = new ArrayList<>();
+		boolean stop = depth <= 0;
+		if(!stop){
 		ArrayList<SheepStack> tempSheeps;
 		HexSpace currSpace = null;
 		Player nextPlayer = GameState.getInstance().getNextPlayer(player);
-		for(int sheepIndex = 0; sheepIndex < sheepStacks.size(); sheepIndex++)
+		for(int sheepIndex = 0; sheepIndex < sheepStacks.size() && !stop; sheepIndex++)
 			if(sheepStacks.get(sheepIndex).getOwner().equals(player))
 				if(sheepStacks.get(sheepIndex).getNumberOfSheep() > 1)
-					for(int sheepNo = sheepStacks.get(sheepIndex).getNumberOfSheep() - 1; sheepNo > 0; sheepNo--)
-						for(int direction = 0; direction < HexSpace.MAX_NEIGHBORS; direction++)
+					for(int sheepNo = sheepStacks.get(sheepIndex).getNumberOfSheep() - 1 ; sheepNo > 0  && !stop; sheepNo--)
+						for(int direction = 0; direction < HexSpace.MAX_NEIGHBORS  && !stop; direction++)
 							if((currSpace = getHexSpace(sheepStacks.get(sheepIndex).getHexSpace(), direction)) != null){
 								tempSheeps = cloneSheepStacks();
 								move(tempSheeps, sheepIndex, currSpace, sheepNo, player);
 								result.add(new BattleSheepState(nextPlayer, tempSheeps, this, depth - 1));
 								children++;
+								stop = GameState.getInstance().isTurnFinish();
 							}
+		}
 		return result;
 	}
 
@@ -76,7 +81,7 @@ public class BattleSheepState extends State{
 
 	@Override
 	public boolean isFinal() {
-		if(depth == 0)
+		if(depth <= 0)
 			return true;
 		return !hasPossibleMove(player);
 	}
@@ -87,7 +92,7 @@ public class BattleSheepState extends State{
 	}
 	
 	public void propagateScore(){
-        if(parent!=null && children <=0)
+        if(parent != null && children <= 0)
             ((BattleSheepState) parent).submit(this);
     }
 	
@@ -98,6 +103,7 @@ public class BattleSheepState extends State{
         else
             score = Math.min(score, currentState.getScore());
         children--;
+		
         if(parent != null)
             if(isMax && score >= parent.getScore() || !isMax && score <= parent.getScore()){
                 propagateScore();
@@ -126,7 +132,7 @@ public class BattleSheepState extends State{
 		for(SheepStack player: playerSheep)
 			for(SheepStack enemy: enemySheep){
 				if(player.getHexSpace().isNeighbor(enemy.getHexSpace()))
-					x += GameState.INIT_SHEEP_SIZE - player.getNumberOfSheep() * 1000;
+					x += (GameState.INIT_SHEEP_SIZE - player.getNumberOfSheep()) * 400;
 				y+= player.getHexSpace().countEmptyNeighbors() * 300;
 			}
 				
@@ -136,8 +142,7 @@ public class BattleSheepState extends State{
 				
 		
 		heuristic = x + y;
-		
-		setScore(score + heuristic);
+		setScore(heuristic);
 		propagateScore();
 	}
 
