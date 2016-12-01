@@ -5,7 +5,6 @@ import java.util.Scanner;
 
 import battlesheep.GameState;
 import battlesheep.AI.state.State;
-import battlesheep.AI.state.TurnState;
 
 
 public class HumanPlayer extends Player{

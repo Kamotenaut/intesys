@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import battlesheep.GameState;
 import battlesheep.AI.state.BattleSheepState;
 import battlesheep.AI.state.State;
-import battlesheep.AI.state.TurnState;
 
 public class BattleSheepSolver extends Solver{
 

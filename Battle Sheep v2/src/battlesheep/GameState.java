@@ -6,7 +6,6 @@ import java.util.HashMap;
 
 import battlesheep.AI.state.BattleSheepState;
 import battlesheep.AI.state.State;
-import battlesheep.AI.state.TurnState;
 import battlesheep.actor.ComputerPlayer;
 import battlesheep.actor.HexSpace;
 import battlesheep.actor.HumanPlayer;

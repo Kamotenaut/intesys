@@ -4,7 +4,6 @@ import java.awt.Color;
 
 import battlesheep.GameState;
 import battlesheep.AI.solver.BattleSheepSolver;
-import battlesheep.AI.solver.TurnSolver;
 
 
 public class ComputerPlayer extends Player {
