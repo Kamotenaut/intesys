@@ -1,0 +1,29 @@
+package jGame.model.physics;
+
+import jGame.model.math.Vector3f;
+
+public class Physics3D {
+
+	protected Vector3f position = new Vector3f();
+	protected Vector3f rotation = new Vector3f();
+	protected Vector3f acceleration = new Vector3f();
+	protected Vector3f velocity = new Vector3f();
+	
+	public Vector3f getPosition(){return position;}
+	public void setPosition(float x, float y, float z){
+		this.position.setValue(x, y, z);
+		}
+	public Vector3f getRotation(){return rotation;}
+	public void setRotation(float x, float y, float z){
+		this.rotation.setValue(x, y, z);
+		}
+	public Vector3f getAcceleration(){return acceleration;}
+	public void setAcceleration(float x, float y, float z){
+		this.acceleration.setValue(x, y, z);
+		}
+	public Vector3f getVelocity(){return velocity;}
+	public void setVelocity(float x, float y, float z){
+		this.velocity.setValue(x, y, z);
+		}
+
+}
