@@ -10,8 +10,9 @@ import battlesheep.actor.SheepStack;
 
 public class BattleSheepState extends State{
 
-	public static final int STATUS_WIN = 0;
-	public static final int STATUS_LOSE = 1;
+	public static final int STATUS_WIN = 1;
+	public static final int STATUS_NONE = 0;
+	public static final int STATUS_LOSE = -1;
 
 	public static final int MAX_DEPTH = 4;
 	
@@ -111,9 +112,8 @@ public class BattleSheepState extends State{
 			}
 				
 		heuristic = x + y;
-		if(!isMax()){
-			heuristic *= -1;
-		}
+		
+		int status ;
 		setScore(heuristic);
 		
 	}

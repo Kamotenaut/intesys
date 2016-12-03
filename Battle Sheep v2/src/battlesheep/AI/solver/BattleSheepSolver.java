@@ -102,7 +102,9 @@ public class BattleSheepSolver extends Solver{
 	}
 
 	public int alphaBetaMiniMax(BattleSheepState state, int alpha, int beta, int depth){
-		if(state.isFinal() || depth == 0){
+		if(state.isFinal())
+			return state.isMax() ? Integer.MIN_VALUE : Integer.MAX_VALUE;
+		if(depth == 0){
 			state.calculateScore();
 			return state.getScore();
 		}
