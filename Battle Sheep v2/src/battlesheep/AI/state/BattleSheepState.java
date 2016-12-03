@@ -1,6 +1,7 @@
 package battlesheep.AI.state;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 import battlesheep.GameState;
 import battlesheep.actor.HexSpace;
@@ -14,45 +15,41 @@ public class BattleSheepState extends State{
 
 	public static final int MAX_DEPTH = 4;
 	
-	private ArrayList<SheepStack> sheepStacks;
+	private ArrayList<SheepStack> sheepStackEnemy;
+	private ArrayList<SheepStack> sheepStackPlayer;
 	
 	private Player player;
 	
-	public BattleSheepState(Player player, ArrayList<SheepStack> sheepStacks){
-		this.sheepStacks = sheepStacks;
+	public BattleSheepState(Player player, ArrayList<SheepStack> sheepStackPlayer, ArrayList<SheepStack> sheepStackEnemy){
+		this.sheepStackPlayer = sheepStackPlayer;
+		this.sheepStackEnemy = sheepStackEnemy;
 		this.player = player;
 		setParent(null);
-		setDepth(MAX_DEPTH);
-		setChildren(0);
-		setScore(GameState.getInstance().getCurrentPlayer().equals(player) ? Integer.MIN_VALUE: Integer.MAX_VALUE);
 	}
 	
-	public BattleSheepState(Player player, ArrayList<SheepStack> sheepStacks, State parent, int depth){
-		this.sheepStacks = sheepStacks;
+	public BattleSheepState(Player player, ArrayList<SheepStack> sheepStackPlayer, ArrayList<SheepStack> sheepStackEnemy, State parent, int depth){
+		this.sheepStackPlayer = sheepStackPlayer;
+		this.sheepStackEnemy = sheepStackEnemy;
 		this.player = player;
 		setParent(parent);
-		setDepth(depth);
-		setChildren(0);
-		setScore(GameState.getInstance().getCurrentPlayer().equals(player) ? Integer.MIN_VALUE: Integer.MAX_VALUE);
 	}
 	
 	@Override
 	public ArrayList<State> getNextStates() {
 		ArrayList<State> result = new ArrayList<>();
-		boolean stop = depth <= 0;
+		boolean stop = false;
 		if(!stop){
 		ArrayList<SheepStack> tempSheeps;
 		HexSpace currSpace = null;
 		Player nextPlayer = GameState.getInstance().getNextPlayer(player);
-		for(int sheepIndex = 0; sheepIndex < sheepStacks.size() && !stop; sheepIndex++)
-			if(sheepStacks.get(sheepIndex).getOwner().equals(player))
-				if(sheepStacks.get(sheepIndex).getNumberOfSheep() > 1)
-					for(int sheepNo = sheepStacks.get(sheepIndex).getNumberOfSheep() - 1 ; sheepNo > 0  && !stop; sheepNo--)
+		for(int sheepIndex = 0; sheepIndex < sheepStackPlayer.size() && !stop; sheepIndex++)
+				if(sheepStackPlayer.get(sheepIndex).getNumberOfSheep() > 1)
+					for(int sheepNo = sheepStackPlayer.get(sheepIndex).getNumberOfSheep() - 1 ; sheepNo > 0  && !stop; sheepNo--)
 						for(int direction = 0; direction < HexSpace.MAX_NEIGHBORS  && !stop; direction++)
-							if((currSpace = getHexSpace(sheepStacks.get(sheepIndex).getHexSpace(), direction)) != null){
-								tempSheeps = cloneSheepStacks();
+							if((currSpace = getHexSpace(sheepStackPlayer.get(sheepIndex).getHexSpace(), direction)) != null){
+								tempSheeps = cloneSheepStackPlayer();
 								move(tempSheeps, sheepIndex, currSpace, sheepNo, player);
-								result.add(new BattleSheepState(nextPlayer, tempSheeps, this, depth - 1));
+								result.add(new BattleSheepState(nextPlayer, cloneSheepStackEnemy(), tempSheeps, this, depth - 1));
 								children++;
 								stop = GameState.getInstance().isTurnFinish();
 							}
@@ -64,10 +61,15 @@ public class BattleSheepState extends State{
 	public boolean equals(State state) {
 		if(!player.equals(((BattleSheepState)state).getPlayer()))
 			return false;
-		if(sheepStacks.size() != ((BattleSheepState)state).getSheepStacks().size() )
+		if(sheepStackPlayer.size() != ((BattleSheepState)state).getSheepStackPlayer().size() )
 			return false;
-		for(int i = 0; i < sheepStacks.size(); i++)
-			if(sheepStacks.get(i).equals(((BattleSheepState)state).getSheepStacks().get(i)))
+		if(sheepStackEnemy.size() != ((BattleSheepState)state).getSheepStackEnemy().size() )
+			return false;
+		for(int i = 0; i < sheepStackPlayer.size(); i++)
+			if(sheepStackPlayer.get(i).equals(((BattleSheepState)state).getSheepStackPlayer().get(i)))
+				return false;
+		for(int i = 0; i < sheepStackEnemy.size(); i++)
+			if(sheepStackEnemy.get(i).equals(((BattleSheepState)state).getSheepStackEnemy().get(i)))
 				return false;
 		
 		return true;
@@ -81,8 +83,6 @@ public class BattleSheepState extends State{
 
 	@Override
 	public boolean isFinal() {
-		if(depth <= 0)
-			return true;
 		return !hasPossibleMove(player);
 	}
 
@@ -91,26 +91,9 @@ public class BattleSheepState extends State{
 		// TODO Auto-generated method stub
 	}
 	
-	public void propagateScore(){
-        if(parent != null && children <= 0)
-            ((BattleSheepState) parent).submit(this);
-    }
-	
-	public void submit(BattleSheepState currentState){
-		boolean isMax = GameState.getInstance().getCurrentPlayer().equals(player);
-        if(isMax)
-            score = Math.max(score,currentState.getScore());
-        else
-            score = Math.min(score, currentState.getScore());
-        children--;
-		
-        if(parent != null)
-            if(isMax && score >= parent.getScore() || !isMax && score <= parent.getScore()){
-                propagateScore();
-            }
-        
-        
-    }
+	public boolean isMax(){
+		return GameState.getInstance().getCurrentPlayer().equals(player);
+	}
 	
 	public void calculateScore(){
 		int heuristic = 0;
@@ -120,30 +103,19 @@ public class BattleSheepState extends State{
 		// taken spaces in clear area (high sheep no)
 		int y = 0;
 		
-		ArrayList<SheepStack> playerSheep = new ArrayList<>();
-		ArrayList<SheepStack> enemySheep = new ArrayList<>();
-		
-		for(SheepStack s: sheepStacks)
-			if(s.getOwner().equals(player))
-				playerSheep.add(s);
-			else
-				enemySheep.add(s);
-		
-		for(SheepStack player: playerSheep)
-			for(SheepStack enemy: enemySheep){
+		for(SheepStack player: sheepStackPlayer)
+			for(SheepStack enemy: sheepStackEnemy){
 				if(player.getHexSpace().isNeighbor(enemy.getHexSpace()))
 					x += (GameState.INIT_SHEEP_SIZE - player.getNumberOfSheep()) * 400;
 				y+= player.getHexSpace().countEmptyNeighbors() * 300;
 			}
 				
-		
-		
-				
-				
-		
 		heuristic = x + y;
+		if(!isMax()){
+			heuristic *= -1;
+		}
 		setScore(heuristic);
-		propagateScore();
+		
 	}
 
 	
@@ -161,15 +133,25 @@ public class BattleSheepState extends State{
 				
 	}
 	
-	public ArrayList<SheepStack> cloneSheepStacks(){
+	public ArrayList<SheepStack> cloneSheepStackPlayer(){
 		ArrayList<SheepStack> result = new ArrayList<>();
-		for(SheepStack s: sheepStacks)
+		for(SheepStack s: sheepStackPlayer)
+			result.add(s.clone());
+		return result;
+	}
+	
+	public ArrayList<SheepStack> cloneSheepStackEnemy(){
+		ArrayList<SheepStack> result = new ArrayList<>();
+		for(SheepStack s: sheepStackEnemy)
 			result.add(s.clone());
 		return result;
 	}
 	
 	public boolean isOccupied(int hexID){
-		for(SheepStack s: sheepStacks)
+		for(SheepStack s: sheepStackPlayer)
+			if(s.getHexSpaceID() == hexID)
+				return true;
+		for(SheepStack s: sheepStackEnemy)
 			if(s.getHexSpaceID() == hexID)
 				return true;
 		return false;
@@ -203,43 +185,37 @@ public class BattleSheepState extends State{
 	}
 	
 	public int getGameStatus(){
-		int playerSheep = 0;
-		int enemySheep = 0;
+		int playerSheep = sheepStackPlayer.size();
+		int enemySheep = sheepStackEnemy.size();
 		
-		for(SheepStack s: sheepStacks)
-			if(s.getOwner().equals(player)){
-				playerSheep++;
-			} else {
-				enemySheep++;
-			}
 		if(playerSheep > enemySheep)
 			return STATUS_WIN;
 		return STATUS_LOSE;
 	}
 	
 	public boolean hasPossibleMove(Player player){
-		for(SheepStack s: sheepStacks)
-			if(s.getOwner().equals(player))
-				for(int direction = 0; direction < HexSpace.MAX_NEIGHBORS; direction++)
-					if(getHexSpace(s.getHexSpace(), direction) != null)
-						return true;
+		if(player.equals(this.player)){
+			for(SheepStack s: sheepStackPlayer)
+				if(s.getNumberOfSheep() > 1)
+					for(int direction = 0; direction < HexSpace.MAX_NEIGHBORS; direction++)
+						if(getHexSpace(s.getHexSpace(), direction) != null)
+							return true;
+		} else{
+			for(SheepStack s: sheepStackEnemy)
+				if(s.getNumberOfSheep() > 1)
+					for(int direction = 0; direction < HexSpace.MAX_NEIGHBORS; direction++)
+						if(getHexSpace(s.getHexSpace(), direction) != null)
+							return true;
+		}
 		return false;
 	}
 
 	@Override
 	public BattleSheepState clone(){
-		BattleSheepState result = new BattleSheepState(player, cloneSheepStacks(), parent, depth);
+		BattleSheepState result = new BattleSheepState(player, cloneSheepStackPlayer(), cloneSheepStackEnemy(), parent, depth);
 		result.setChildren(children);
 		result.setScore(score);
 		return result;
-	}
-	
-	public ArrayList<SheepStack> getSheepStacks() {
-		return sheepStacks;
-	}
-
-	public void setSheepStacks(ArrayList<SheepStack> sheepStacks) {
-		this.sheepStacks = sheepStacks;
 	}
 
 	public Player getPlayer() {
@@ -248,6 +224,22 @@ public class BattleSheepState extends State{
 
 	public void setPlayer(Player player) {
 		this.player = player;
+	}
+
+	public ArrayList<SheepStack> getSheepStackEnemy() {
+		return sheepStackEnemy;
+	}
+
+	public void setSheepStackEnemy(ArrayList<SheepStack> sheepStackEnemy) {
+		this.sheepStackEnemy = sheepStackEnemy;
+	}
+
+	public ArrayList<SheepStack> getSheepStackPlayer() {
+		return sheepStackPlayer;
+	}
+
+	public void setSheepStackPlayer(ArrayList<SheepStack> sheepStackPlayer) {
+		this.sheepStackPlayer = sheepStackPlayer;
 	}
 
 }

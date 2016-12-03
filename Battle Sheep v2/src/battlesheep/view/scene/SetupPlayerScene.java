@@ -40,6 +40,7 @@ public class SetupPlayerScene extends GameScene{
 		rightMouseTimer = new SimpleTimer(0.25f);
 		leftMouseTimer.setResult(true);
 		rightMouseTimer.setResult(true);
+		GameState.getInstance().reset();
 	}
 
 	@Override
@@ -76,7 +77,7 @@ public class SetupPlayerScene extends GameScene{
 		}
 		
 		if(input.getKeyboardKey(KeyEvent.VK_ENTER))if(GameState.getInstance().getStateChangeTimer().checkTime()){
-			if(GameState.getInstance().getSheepStacks().size() == GameState.getInstance().getPlayerCount()){
+			if(GameState.getInstance().getSheepStackPlayer().size() + GameState.getInstance().getSheepStackEnemy().size() == GameState.getInstance().getPlayerCount()){
 				GameState.getInstance().init();
 				getGameSceneManager().changeScene("PLAY_GAME");
 			} else {
@@ -99,8 +100,8 @@ public class SetupPlayerScene extends GameScene{
 	public void render(Renderer renderer) {
 		for(GameObject h: GameState.getInstance().getHexList())
 			h.render(renderer, camera);
-		
-		for(SheepStack s:GameState.getInstance().getSheepStacks()){
+		for(Player p: GameState.getInstance().getPlayers())
+		for(SheepStack s:GameState.getInstance().getSheepStack(p)){
 			renderer.getRendIn().setColor(s.getOwner().getColor());
 			renderer.getRendIn().drawPolygon(s.getHexSpace().generateSprite(camera));
 			renderer.getRendIn().setColor(s.getOwner().getColor2());
@@ -119,7 +120,7 @@ public class SetupPlayerScene extends GameScene{
 		renderer.getRendIn().drawString("Hold click a hexagon to add a player. ", 30, 30);
 		renderer.getRendIn().drawString("Left-click for human player. ", 45, 45);
 		renderer.getRendIn().drawString("Right-click for computer player. ", 45, 60);
-		renderer.getRendIn().drawString("Player added first goes first. ", 30, 75);
+		renderer.getRendIn().drawString("Player added last goes first. ", 30, 75);
 		renderer.getRendIn().drawString("Clicking a hexagon will remove the player. ", 30, 90);
 		
 		renderer.getRendIn().drawString("First Turn: ",15,120);

@@ -61,7 +61,6 @@ public class SetupBoardScene extends GameScene{
 		}
 		
 		if(input.getMouseButton(MouseEvent.BUTTON1) && leftMouseTimer.checkTime()){
-			System.out.println(input.getMouseX()+" "+input.getMouseY());
 			isSpaceFree = true;
 			for(HexSpace h : GameState.getInstance().getHexList())
 				if(h.generateSprite(camera).contains(input.getMouseX(), input.getMouseY())){

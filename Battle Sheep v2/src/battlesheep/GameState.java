@@ -27,7 +27,7 @@ public class GameState {
 	private HashMap<Integer, HexSpace> map;
 	private ArrayList<HexSpace> hexList;
 	private ArrayList<Player> players;
-	private ArrayList<SheepStack> sheepStacks;
+	private HashMap<Player, ArrayList<SheepStack>> sheepStackMap;
 	private int currentPlayerIndex;
 	private Player currentPlayer;
 	private int hexSpaceCount;
@@ -41,6 +41,7 @@ public class GameState {
 	private SimpleTimer stateChangeTimer;
 	
 	private GameState(){
+		setSheepStackMap(new HashMap<>());
 		setHexSpaceCount(0);
 		map = new HashMap<>();
 		hexList = new ArrayList<>();
@@ -58,7 +59,6 @@ public class GameState {
 		setCurrentPlayerIndex(0);
 		setGameOver(false);
 		setTurnOver(true);
-		setSheepStacks(new ArrayList<>());
 		setCurrentTurn(null);
 		setCurrentPlayer(null);
 	}
@@ -66,7 +66,25 @@ public class GameState {
 	
 	public void init(){
 		timer.restart();
-		currTurn = new BattleSheepState(currentPlayer, sheepStacks);
+		currTurn = new BattleSheepState(currentPlayer, getSheepStack(currentPlayer), getSheepStack(getNextPlayer()));
+	}
+	
+	public void setSheepStack(Player player, ArrayList<SheepStack> sheepStack){
+		sheepStackMap.put(player, sheepStack);
+	}
+	
+	public ArrayList<SheepStack> getSheepStack(Player player){
+		if(sheepStackMap.get(player) == null)
+			sheepStackMap.put(player, new ArrayList<>());
+		return sheepStackMap.get(player);
+	}
+	
+	public ArrayList<SheepStack> getSheepStackPlayer(){
+		return sheepStackMap.get(currentPlayer);
+	}
+	
+	public ArrayList<SheepStack> getSheepStackEnemy(){
+		return sheepStackMap.get(getNextPlayer(currentPlayer));
 	}
 
 	public boolean isTurnFinish(){
@@ -74,6 +92,11 @@ public class GameState {
 			return timer.checkTime();
 		return false;
 		}
+	
+	public boolean isPlayerHuman(){
+		return getCurrentPlayer() instanceof HumanPlayer;
+			
+	}
 	
 	public void resetTimer(){ if(timer != null) timer.restart();}
 	
@@ -138,59 +161,57 @@ public class GameState {
 	
 	public void setPlayer(String name, int hexID){
 		Player player = getPlayer(name);
-		HexSpace selectedSpace = null;
 		SheepStack selectedSheep = null;
 		SheepStack playerSheep = null;
-		int sheepIndex = -1;
-		int playerSheepIndex = -1;
 		int playerIndex = getPlayerIndex(player);
+		ArrayList<SheepStack> playerStack = getSheepStack(player);
+		ArrayList<SheepStack> enemyStack = getSheepStack(getNextPlayer(player));
 		
-		for(int i = 0; i < sheepStacks.size(); i++){
-			if(sheepStacks.get(i).getHexSpaceID() == hexID){
-				sheepIndex = i;
-				selectedSpace = sheepStacks.get(i).getHexSpace();
-				selectedSheep = sheepStacks.get(i);
-			}
-			if(sheepStacks.get(i).getOwner().equals(player)){
-				playerSheep = sheepStacks.get(i);
-				playerSheepIndex = i;
-			}
+		for(SheepStack e: enemyStack)
+		if(e.getHexSpaceID() == hexID)
+			selectedSheep = e;
+	
+		for(SheepStack p: playerStack){
+				playerSheep = p;
+			if(p.getHexSpaceID() == hexID)
+				selectedSheep = p;
 		}
 		
 		// space is unclaimed
 		if(selectedSheep == null){
 			if(playerSheep != null)
-				sheepStacks.remove(playerSheep);
-			if(sheepStacks.size() == 0){
+				playerStack.remove(playerSheep);
+			if(playerStack.size() == 0){
 				players.remove(playerIndex);
 				players.add(0, player);
 				setCurrentPlayer(player);
 			}
-			sheepStacks.add(new SheepStack(hexID, INIT_SHEEP_SIZE, player));
+			playerStack.add(new SheepStack(hexID, INIT_SHEEP_SIZE, player));
 			
 		}
 		
 		// space claimed by player
 		else {
 			if(selectedSheep.getOwner().equals(player)){
-				if(sheepStacks.size() == 1){
+				if(playerStack.size() == 1){
 					setCurrentPlayer(null);
-				}
-				sheepStacks.remove(sheepIndex);
+					playerStack.remove(selectedSheep);
+				} else
+				enemyStack.remove(selectedSheep);
 		// space claimed by other player
 			} else {
-				sheepStacks.remove(selectedSheep);
+				enemyStack.remove(selectedSheep);
 				if(playerSheep != null)
-					sheepStacks.remove(playerSheep);
-				sheepStacks.add(new SheepStack(hexID, INIT_SHEEP_SIZE, player));
-				if(sheepStacks.size() == 1){
+					playerStack.remove(playerSheep);
+				playerStack.add(new SheepStack(hexID, INIT_SHEEP_SIZE, player));
+				if(playerStack.size() == 1){
 					players.remove(playerIndex);
 					players.add(0, player);
 					setCurrentPlayer(player);
 				}
 			}
 		}
-		System.out.println(sheepStacks.size());
+		//System.out.println(sheepStacks.size());
 	}
 	
 	public static synchronized GameState getInstance(){
@@ -244,10 +265,14 @@ public class GameState {
 		HexSpace currHex = map.get(id);
 		if(currHex == null)
 			return false;
-		if(currTurn != null)
-		for(SheepStack s: ((BattleSheepState)currTurn).getSheepStacks())
+		if(currTurn != null){
+		for(SheepStack s: ((BattleSheepState)currTurn).getSheepStackPlayer())
 			if(s.getHexSpaceID() == id)
 				return false;
+		for(SheepStack s: ((BattleSheepState)currTurn).getSheepStackEnemy())
+			if(s.getHexSpaceID() == id)
+				return false;
+		}
 		for(HexSpace neighbor : currHex.getNeighbors())
 			if(neighbor != null)
 				neighbor.removeNeighbor(currHex);
@@ -318,14 +343,6 @@ public class GameState {
 	
 	public ArrayList<Player> getPlayers(){ return players;}
 
-	public ArrayList<SheepStack> getSheepStacks() {
-		return sheepStacks;
-	}
-
-	public void setSheepStacks(ArrayList<SheepStack> sheepStacks) {
-		this.sheepStacks = sheepStacks;
-	}
-
 	public void setCurrentPlayer(Player currentPlayer) {
 		this.currentPlayer = currentPlayer;
 	}
@@ -336,6 +353,14 @@ public class GameState {
 
 	public void setStateChangeTimer(SimpleTimer stateChangeTimer) {
 		this.stateChangeTimer = stateChangeTimer;
+	}
+
+	public HashMap<Player, ArrayList<SheepStack>> getSheepStackMap() {
+		return sheepStackMap;
+	}
+
+	public void setSheepStackMap(HashMap<Player, ArrayList<SheepStack>> sheepStackMap) {
+		this.sheepStackMap = sheepStackMap;
 	}
 
 }

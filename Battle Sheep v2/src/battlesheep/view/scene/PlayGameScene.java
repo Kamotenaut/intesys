@@ -43,7 +43,6 @@ public class PlayGameScene extends GameScene{
 		rightMouseTimer = new SimpleTimer(0.25f);
 		leftMouseTimer.setResult(true);
 		rightMouseTimer.setResult(true);
-		resetSelection();
 	}
 
 	@Override
@@ -70,11 +69,17 @@ public class PlayGameScene extends GameScene{
 			if(sourceHex != null && destinationHex != null){
 			
 			int sheepIndex = 0;
-			for(int i = 0; i < GameState.getInstance().getSheepStacks().size(); i++)
-				if(GameState.getInstance().getSheepStacks().get(i).getHexSpaceID() == sourceHex.getId())
+			for(int i = 0; i < GameState.getInstance().getSheepStackPlayer().size(); i++)
+				if(GameState.getInstance().getSheepStackPlayer().get(i).getHexSpaceID() == sourceHex.getId())
 					sheepIndex = i;
-			((BattleSheepState)GameState.getInstance().getCurrentTurn()).move(GameState.getInstance().getSheepStacks(), sheepIndex, destinationHex, numToMove, GameState.getInstance().getCurrentPlayer());
-			State result = new BattleSheepState(GameState.getInstance().getNextPlayer(), GameState.getInstance().getSheepStacks());
+			((BattleSheepState)GameState.getInstance().getCurrentTurn()).move(
+					GameState.getInstance().getSheepStackPlayer(), 
+					sheepIndex, destinationHex, numToMove, 
+					GameState.getInstance().getCurrentPlayer());
+			
+			State result = new BattleSheepState(GameState.getInstance().getNextPlayer(), 
+					GameState.getInstance().getSheepStackEnemy(),
+					GameState.getInstance().getSheepStackPlayer());
 			
 			GameState.getInstance().setCurrentTurn(result);
 			GameState.getInstance().nextTurn();
@@ -95,8 +100,8 @@ public class PlayGameScene extends GameScene{
 					for(HexSpace h : GameState.getInstance().getHexList())
 						if(h.generateSprite(camera).contains(input.getMouseX(), input.getMouseY())){
 							// left click
-							for(SheepStack s: ((BattleSheepState)GameState.getInstance().getCurrentTurn()).getSheepStacks())
-								if(s.getHexSpaceID() == h.getId() && s.getNumberOfSheep() > 1 && s.getOwner().equals(GameState.getInstance().getCurrentPlayer())){
+							for(SheepStack s: ((BattleSheepState)GameState.getInstance().getCurrentTurn()).getSheepStackPlayer())
+								if(s.getHexSpaceID() == h.getId() && s.getNumberOfSheep() > 1 ){
 									if(sourceHex == null){
 										sourceHex = h;
 										maxSheep = s.getNumberOfSheep();
@@ -140,11 +145,14 @@ public class PlayGameScene extends GameScene{
 	@Override
 	public void logic(long deltaTime) {
 		camera.logic(deltaTime);
-		if(!GameState.getInstance().isGameOver())
-		if(GameState.getInstance().isTurnOver()){
-			resetSelection();
-			GameState.getInstance().setTurnOver(false);
-			GameState.getInstance().getCurrentPlayer().doTurn();
+		if(!GameState.getInstance().isGameOver()){
+			if(GameState.getInstance().isTurnOver()){
+				resetSelection();
+				GameState.getInstance().setTurnOver(false);
+				if(!GameState.getInstance().getCurrentTurn().isFinal())
+					GameState.getInstance().getCurrentPlayer().doTurn();
+				else GameState.getInstance().setGameOver(true);
+			}
 		}
 	}
 
@@ -153,7 +161,7 @@ public class PlayGameScene extends GameScene{
 		for(GameObject h: GameState.getInstance().getHexList())
 			h.render(renderer, camera);
 		
-		for(SheepStack s:GameState.getInstance().getSheepStacks()){
+		for(SheepStack s:GameState.getInstance().getSheepStackPlayer()){
 			if(sourceHex != null)
 				if(s.getHexSpaceID() == sourceHex.getId())
 					renderer.getRendIn().setStroke(new BasicStroke(5));
@@ -180,6 +188,35 @@ public class PlayGameScene extends GameScene{
 				camera.getPosition().getX() + s.getHexSpace().getPosition().getX() - 24,
 				camera.getPosition().getY() + s.getHexSpace().getPosition().getY() + 3);
 			}
+		
+		for(SheepStack s:GameState.getInstance().getSheepStackEnemy()){
+			if(sourceHex != null)
+				if(s.getHexSpaceID() == sourceHex.getId())
+					renderer.getRendIn().setStroke(new BasicStroke(5));
+			renderer.getRendIn().setColor(s.getOwner().getColor());
+			renderer.getRendIn().drawPolygon(s.getHexSpace().generateSprite(camera));
+			renderer.getRendIn().setStroke(new BasicStroke(1));
+			renderer.getRendIn().setColor(s.getOwner().getColor2());
+			renderer.getRendIn().fillPolygon(s.getHexSpace().generateSprite(camera));
+			renderer.getRendIn().setColor(s.getOwner().getColor());
+			
+			renderer.getRendIn().drawString("ID: "+s.getHexSpace().getId(),
+				camera.getPosition().getX() + s.getHexSpace().getPosition().getX() - 14,
+				camera.getPosition().getY() + s.getHexSpace().getPosition().getY() - 14);
+			if(sourceHex == null)
+			renderer.getRendIn().drawString("S: "+s.getNumberOfSheep(), 
+				camera.getPosition().getX() + s.getHexSpace().getPosition().getX() - 24,
+				camera.getPosition().getY() + s.getHexSpace().getPosition().getY() + 3);
+			else if(sourceHex.getId() == s.getHexSpaceID())
+			renderer.getRendIn().drawString("S: "+(s.getNumberOfSheep() - numToMove), 
+				camera.getPosition().getX() + s.getHexSpace().getPosition().getX() - 24,
+				camera.getPosition().getY() + s.getHexSpace().getPosition().getY() + 3);
+			else 
+			renderer.getRendIn().drawString("S: "+s.getNumberOfSheep(), 
+				camera.getPosition().getX() + s.getHexSpace().getPosition().getX() - 24,
+				camera.getPosition().getY() + s.getHexSpace().getPosition().getY() + 3);
+			}
+		
 		if(destinationHex != null){
 			renderer.getRendIn().setStroke(new BasicStroke(5));
 			renderer.getRendIn().setColor(GameState.getInstance().getCurrentPlayer().getColor());
@@ -227,7 +264,15 @@ public class PlayGameScene extends GameScene{
 	}
 	
 	public void resetSelection(){
-		GameState.getInstance().setSheepStacks(((BattleSheepState)GameState.getInstance().getCurrentTurn()).cloneSheepStacks());
+		GameState.getInstance().setSheepStack(
+				GameState.getInstance().getCurrentPlayer(),
+				((BattleSheepState)GameState.getInstance().getCurrentTurn()).cloneSheepStackPlayer()
+				);
+		GameState.getInstance().setSheepStack(
+				GameState.getInstance().getNextPlayer(),
+				((BattleSheepState)GameState.getInstance().getCurrentTurn()).cloneSheepStackEnemy()
+				);
+		
 		maxSheep = 0;
 		numToMove = 0;
 		sourceHex = null;
