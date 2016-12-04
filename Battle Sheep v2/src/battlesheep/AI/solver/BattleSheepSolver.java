@@ -46,6 +46,8 @@ public class BattleSheepSolver extends Solver{
 		System.out.println("Children Count: " + temp.getChildren());
 		System.out.println("Score: " + temp.getScore());
 		System.out.println();
+		if(temp.isFinal())
+			GameState.getInstance().setGameOver(true);
 		BattleSheepState result = new BattleSheepState(
 				temp.getPlayer(),
 				((BattleSheepState)initState).getSheepStackEnemy(), 
@@ -103,7 +105,7 @@ public class BattleSheepSolver extends Solver{
 
 	public int alphaBetaMiniMax(BattleSheepState state, int alpha, int beta, int depth){
 		if(state.isFinal())
-			return state.isMax() ? Integer.MIN_VALUE : Integer.MAX_VALUE;
+			return state.evaluateGame();
 		if(depth == 0){
 			state.calculateScore();
 			return state.getScore();

@@ -84,6 +84,9 @@ public class PlayGameScene extends GameScene{
 			GameState.getInstance().setCurrentTurn(result);
 			GameState.getInstance().nextTurn();
 			GameState.getInstance().setTurnOver(true);
+
+			if(result.isFinal())
+				GameState.getInstance().setGameOver(true);
 			} else {
 				System.out.println("MOVE IS NOT VALID!!!");
 			}
@@ -153,7 +156,9 @@ public class PlayGameScene extends GameScene{
 					GameState.getInstance().getCurrentPlayer().doTurn();
 				else GameState.getInstance().setGameOver(true);
 			}
-		}
+		} else
+			getGameSceneManager().changeScene("GAME_END");
+		
 	}
 
 	@Override

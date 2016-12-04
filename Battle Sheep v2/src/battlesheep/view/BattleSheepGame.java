@@ -7,6 +7,7 @@ import java.awt.FlowLayout;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import battlesheep.view.scene.GameEndScene;
 import battlesheep.view.scene.PlayGameScene;
 import battlesheep.view.scene.SetupBoardScene;
 import battlesheep.view.scene.SetupPlayerScene;
@@ -23,7 +24,8 @@ public class BattleSheepGame {
 		tempSceneMan.addScene(new SetupBoardScene("SETUP_BOARD"));
 		tempSceneMan.addScene(new SetupPlayerScene("SETUP_PLAYER"));
 		tempSceneMan.addScene(new PlayGameScene("PLAY_GAME"));
-		
+		tempSceneMan.addScene(new GameEndScene("GAME_END"));
+
 		
 		game = new JGame(title, width, height, fps, tempSceneMan);
 	}
